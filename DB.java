@@ -4,7 +4,7 @@ public class DB {
 	
 	private String server = "localhost",
 				   port = "3306",
-			   	   db = "testingjava",
+			   	   db = "csci400",
 				   user = "root",
 				   pass = "";
 	

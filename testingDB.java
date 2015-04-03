@@ -11,7 +11,7 @@ public class testingDB {
 	
 	public testingDB(){
 		System.out.println("Running query...");
-		ArrayList<DBResult> result = ProjectDB.query("SELECT fname,lname FROM jdbc_test");
+		ArrayList<DBResult> result = ProjectDB.query("SELECT fname,lname FROM users");
 		if(result.isEmpty() || result.size() < 1){
 			System.out.println("No Results.\nError: " + ProjectDB.getError() + "\nErrorInfo: "+ ProjectDB.getErrorInfo());
 		}
