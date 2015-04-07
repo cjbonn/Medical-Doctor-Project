@@ -22,48 +22,15 @@ public class ProjectDB extends DB {
 		}
 	}
 	
-	// Temporary testing method
-	public void createTable(){
-		// Create a table
-		try {
-		    String createString =
-			        "CREATE TABLE jdbc_test ( " +
-			        "id INTEGER NOT NULL, " +
-			        "fname varchar(40) NOT NULL, " +
-			        "lname varchar(40) NOT NULL, " +
-			        "age INTEGER, " +
-			        "PRIMARY KEY (ID))";
-			this.execute(createString);
-			System.out.println("Created a table");
-	    } catch (SQLException e) {
-			System.out.println("ERROR: Could not create the table");
-			e.printStackTrace();
-			return;
-		}
-	}
-	
-	// Temporary testing method
-	public void dropTable(){
-		// Drop the table
-		try {
-		    String dropString = "DROP TABLE jdbc_test";
-			this.execute(dropString);
-			System.out.println("Dropped the table");
-	    } catch (SQLException e) {
-			System.out.println("ERROR: Could not drop the table");
-			e.printStackTrace();
-			return;
-		}
-	}
-	
-	public boolean login(String username, String password){
+	public boolean login(String username, char[] passwd){
+		String password = new String(passwd);
 		String u = username;
 		String p = getHash(password);
 		try {
-			String query = "SELECT id FROM users WHERE username=?,password=? LIMIT 1";
+			String query = "SELECT id FROM users WHERE username=? AND password=? LIMIT 1";
 			Connection conn = this.getConnection();
 			PreparedStatement stmt = conn.prepareStatement(query);
-			stmt.setString(1,username); stmt.setString(2, password);
+			stmt.setString(1,username); stmt.setString(2, p);
 			ResultSet rs = stmt.executeQuery();
 			boolean exists = rs.next();
 			if(!exists){
@@ -101,6 +68,10 @@ public class ProjectDB extends DB {
 		} catch (NoSuchAlgorithmException e) {}
 		return str;
     }
+	
+	public int getUserID(){
+		return this.user_id;
+	}
 	
 	private void setError(String str){
 		this.error = str;
