@@ -66,6 +66,7 @@ public class Login extends JFrame{
 	}
 	
 	public void login_success(){
+		isLoggedIn = true;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setVisible(false);
 		dispose();
