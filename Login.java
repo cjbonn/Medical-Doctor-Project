@@ -13,7 +13,7 @@ public class Login extends JFrame{
 	JPasswordField pass;
 	JButton loginBtn;
 	
-	boolean isLoggedIn = false;
+	private boolean isLoggedIn = false;
 	
 	public Login(){
 		super("Medical Doctor - Login");
