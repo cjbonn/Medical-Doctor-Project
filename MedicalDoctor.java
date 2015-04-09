@@ -29,7 +29,10 @@ public class MedicalDoctor extends JFrame {
 		firstBuild++;
 		panel = new JPanel(new BorderLayout());
 		if(firstBuild >= 2){
-			if(login.isLoggedIn()) panel.add(new JLabel("Testing"), BorderLayout.NORTH);
+			if(login.isLoggedIn()){
+				panel.add(new JLabel("Logged In."), BorderLayout.NORTH);
+				panel.add(new Footer(login), BorderLayout.SOUTH); // Need method in this class to trigger Footer clock timer and revalidate
+			}
 		}
 		add(panel);
 		validate();
