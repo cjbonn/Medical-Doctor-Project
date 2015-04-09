@@ -80,6 +80,22 @@ public class Login extends JFrame{
 		return ProjectDB.getUserID();
 	}
 	
+	public int getAccountType(){
+		return ProjectDB.getAccountType();
+	}
+	
+	public String getFirstName(){
+		return ProjectDB.getFirstName();
+	}
+	
+	public String getLastName(){
+		return ProjectDB.getLastName();
+	}
+	
+	public String getFullName(){
+		return ProjectDB.getFullName();
+	}
+	
 	public void trigger_error(){
 		error.setVisible(true);
 	}

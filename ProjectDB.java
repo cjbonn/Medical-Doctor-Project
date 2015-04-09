@@ -6,7 +6,8 @@ import java.util.ArrayList;
 public class ProjectDB extends DB {
 
 	private String error, errorInfo;
-	private int user_id;
+	private int user_id,type;
+	private String fname,lname;
 	
 	public ProjectDB(){
 		
@@ -27,7 +28,7 @@ public class ProjectDB extends DB {
 		String u = username;
 		String p = getHash(password);
 		try {
-			String query = "SELECT id FROM users WHERE username=? AND password=? LIMIT 1";
+			String query = "SELECT id,fname,lname,type FROM users WHERE username=? AND password=? LIMIT 1";
 			Connection conn = this.getConnection();
 			PreparedStatement stmt = conn.prepareStatement(query);
 			stmt.setString(1,username); stmt.setString(2, p);
@@ -37,6 +38,9 @@ public class ProjectDB extends DB {
 				setError("Login/Password Incorrect.");
 			}else{
 				this.user_id = rs.getInt("id");
+				this.fname = rs.getString("fname");
+				this.lname = rs.getString("lname");
+				this.type = rs.getInt("type");
 			}
 			rs.close(); stmt.close();
 			return exists;
@@ -71,6 +75,22 @@ public class ProjectDB extends DB {
 	
 	public int getUserID(){
 		return this.user_id;
+	}
+	
+	public int getAccountType(){
+		return this.type;
+	}
+	
+	public String getFirstName(){
+		return this.fname;
+	}
+	
+	public String getLastName(){
+		return this.lname;
+	}
+	
+	public String getFullName(){
+		return getFirstName()+" "+getLastName();
 	}
 	
 	private void setError(String str){
