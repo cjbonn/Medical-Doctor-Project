@@ -12,13 +12,13 @@ public class Footer extends JPanel {
 	public Footer(Login l){
 		login = l;
 		setLayout(new GridLayout(1,3));
-		footerName = new JLabel(login.getFullName());
+		footerName = new JLabel(" "+login.getFullName());
 		footerName.setHorizontalAlignment(SwingConstants.LEFT);
 		add(footerName);
 		footerTime = new JLabel(getCurrentTime());
 		footerTime.setHorizontalAlignment(SwingConstants.CENTER);
 		add(footerTime);
-		footerDate = new JLabel(getCurrentDate());
+		footerDate = new JLabel(getCurrentDate()+" ");
 		footerDate.setHorizontalAlignment(SwingConstants.RIGHT);
 		add(footerDate);
 		this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
@@ -34,6 +34,6 @@ public class Footer extends JPanel {
 	}
 	
 	private String getCurrentTime(){
-		return new SimpleDateFormat("hh:mm aaa").format(new Date());
+		return new SimpleDateFormat("hh:mm:ss aaa").format(new Date());
 	}
 }

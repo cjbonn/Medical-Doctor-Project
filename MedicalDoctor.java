@@ -1,5 +1,4 @@
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.*;
 
@@ -7,6 +6,7 @@ public class MedicalDoctor extends JFrame {
 
 	Login login;
 	JPanel panel;
+	Footer footer;
 	
 	private int firstBuild = 0;
 	
@@ -31,7 +31,13 @@ public class MedicalDoctor extends JFrame {
 		if(firstBuild >= 2){
 			if(login.isLoggedIn()){
 				panel.add(new JLabel("Logged In."), BorderLayout.NORTH);
-				panel.add(new Footer(login), BorderLayout.SOUTH); // Need method in this class to trigger Footer clock timer and revalidate
+				footer = new Footer(login);
+				panel.add(footer, BorderLayout.SOUTH);
+				new Timer(1000,new ActionListener(){
+					public void actionPerformed(ActionEvent e){
+						footer.updateTime();
+					}
+				}).start();
 			}
 		}
 		add(panel);
@@ -39,12 +45,10 @@ public class MedicalDoctor extends JFrame {
 	}
 	
 	private class ExitListener extends WindowAdapter {
-		@Override
 		public void windowClosing(WindowEvent e) {
 			close();
 		}
 
-		@Override
 		public void windowClosed(WindowEvent e) {
 			close();
 		}
