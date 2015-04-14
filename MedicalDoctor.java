@@ -5,7 +5,7 @@ import java.awt.event.*;
 public class MedicalDoctor extends JFrame {
 
 	Login login;
-	JPanel panel;
+	JPanel panel, mainPanel;
 	Footer footer;
 	
 	private int firstBuild = 0;
@@ -29,8 +29,20 @@ public class MedicalDoctor extends JFrame {
 		firstBuild++;
 		panel = new JPanel(new BorderLayout());
 		if(firstBuild >= 2){
-			if(login.isLoggedIn()){
-				panel.add(new JLabel("Logged In."), BorderLayout.NORTH);
+			if(login.isLoggedIn()){				
+				if(login.getAccountType() == 0){ // Doctor
+					mainPanel = new DoctorPanel();
+				}else if(login.getAccountType() == 1){ // Nurse
+					mainPanel = new NursePanel();
+				}else if(login.getAccountType() == 2){ // Secretary
+					mainPanel = new SecretaryPanel();
+				}else{ // Other
+					mainPanel = new JPanel();
+					mainPanel.add(new JLabel("Unknown account type."), BorderLayout.NORTH);
+				}
+				panel.add(mainPanel, BorderLayout.CENTER);
+				
+				// Footer
 				footer = new Footer(login);
 				panel.add(footer, BorderLayout.SOUTH);
 				new Timer(1000,new ActionListener(){

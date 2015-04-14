@@ -106,7 +106,7 @@ public class Login extends JFrame{
 			error.setVisible(false);
 			String u = user.getText();
 			char[] p = pass.getPassword();
-			if(u.isEmpty() || p.length <= 5){
+			if(u.isEmpty() || p.length <= 4){
 				trigger_error();
 				return;
 			}

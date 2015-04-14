@@ -51,8 +51,8 @@ public class ProjectDB extends DB {
 	}
 	
 	public static String getHash(String str) {
-        if (str == null || str.length() <= 5) {
-            throw new IllegalArgumentException("Password must be more than 5 characters in length.");
+        if (str == null || str.length() <= 4) {
+            throw new IllegalArgumentException("Password must be more than 4 characters in length.");
         }
         MessageDigest digester;
 		try {
