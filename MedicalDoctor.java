@@ -11,13 +11,13 @@ public class MedicalDoctor extends JFrame {
 	JMenuBar menuBar;
 	JMenu fileMenu;
 	JMenuItem exitItem,logoutItem;
-	
+
 	private int firstBuild = 0;
-	
+
 	public static void main(String[] args){
 		new MedicalDoctor();
 	}
-	
+
 	public MedicalDoctor(){
 		super("Medical Doctor");
 		setSize(500,500);
@@ -28,8 +28,9 @@ public class MedicalDoctor extends JFrame {
 		login = new Login();
 		login.addWindowListener(new ExitListener());
 		build();
+		setResizable(false);
 	}
-	
+
 	public void build(){
 		firstBuild++;
 		panel = new JPanel(new BorderLayout());
@@ -46,7 +47,11 @@ public class MedicalDoctor extends JFrame {
 					mainPanel.add(new JLabel("Unknown account type."), BorderLayout.NORTH);
 				}
 				panel.add(mainPanel, BorderLayout.CENTER);
-				
+				mainPanel.addComponentListener(new ComponentAdapter(){
+					public void componentResized(ComponentEvent e){
+						revalidate();
+					}
+				});
 				// Footer
 				footer = new Footer(login);
 				panel.add(footer, BorderLayout.SOUTH);
@@ -60,25 +65,25 @@ public class MedicalDoctor extends JFrame {
 		add(panel);
 		validate();
 	}
-	
+
 	public void createMenu(){
 		menuBar = new JMenuBar();
 		fileMenu = new JMenu("File");
-		
+
 		logoutItem = new JMenuItem("Logout");
 		logoutItem.setActionCommand("logout");
 		logoutItem.addActionListener(new MenuListener());
 		fileMenu.add(logoutItem);
-		
+
 		exitItem = new JMenuItem("Exit");
 		exitItem.setActionCommand("close");
 		exitItem.addActionListener(new MenuListener());
 		fileMenu.add(exitItem);
-		
+
 		menuBar.add(fileMenu);
 		setJMenuBar(menuBar);
 	}
-	
+
 	/*
 	 * All Menu events are triggered here
 	 */
@@ -99,7 +104,7 @@ public class MedicalDoctor extends JFrame {
 			}
 		}
 	}
-	
+
 	private class ExitListener extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
 			close();
@@ -108,10 +113,10 @@ public class MedicalDoctor extends JFrame {
 		public void windowClosed(WindowEvent e) {
 			close();
 		}
-		
+
 		private void close(){
 			build();
 		}
-		
+
 	}
 }
