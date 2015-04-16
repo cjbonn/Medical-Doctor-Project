@@ -1,4 +1,5 @@
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -7,6 +8,9 @@ public class MedicalDoctor extends JFrame {
 	Login login;
 	JPanel panel, mainPanel;
 	Footer footer;
+	JMenuBar menuBar;
+	JMenu fileMenu;
+	JMenuItem exitItem,logoutItem;
 	
 	private int firstBuild = 0;
 	
@@ -16,7 +20,8 @@ public class MedicalDoctor extends JFrame {
 	
 	public MedicalDoctor(){
 		super("Medical Doctor");
-		setSize(400,400);
+		setSize(500,500);
+		createMenu();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -29,7 +34,7 @@ public class MedicalDoctor extends JFrame {
 		firstBuild++;
 		panel = new JPanel(new BorderLayout());
 		if(firstBuild >= 2){
-			if(login.isLoggedIn()){				
+			if(login.isLoggedIn()){
 				if(login.getAccountType() == 0){ // Doctor
 					mainPanel = new DoctorPanel();
 				}else if(login.getAccountType() == 1){ // Nurse
@@ -54,6 +59,45 @@ public class MedicalDoctor extends JFrame {
 		}
 		add(panel);
 		validate();
+	}
+	
+	public void createMenu(){
+		menuBar = new JMenuBar();
+		fileMenu = new JMenu("File");
+		
+		logoutItem = new JMenuItem("Logout");
+		logoutItem.setActionCommand("logout");
+		logoutItem.addActionListener(new MenuListener());
+		fileMenu.add(logoutItem);
+		
+		exitItem = new JMenuItem("Exit");
+		exitItem.setActionCommand("close");
+		exitItem.addActionListener(new MenuListener());
+		fileMenu.add(exitItem);
+		
+		menuBar.add(fileMenu);
+		setJMenuBar(menuBar);
+	}
+	
+	/*
+	 * All Menu events are triggered here
+	 */
+	private class MenuListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if(!login.isLoggedIn()) return;
+			switch(e.getActionCommand()){
+			case "close": // On File > Exit
+				System.exit(0);
+				break;
+
+			case "logout": // On Edit > Edit Foods Items
+				login = new Login();
+				login.addWindowListener(new ExitListener());
+				break;
+
+			default: break;
+			}
+		}
 	}
 	
 	private class ExitListener extends WindowAdapter {
