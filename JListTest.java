@@ -28,6 +28,7 @@ public class JListTest extends JFrame
 	{
 		public void valueChanged(ListSelectionEvent e)
 		{
+			if(e.getValueIsAdjusting()) return;
 			Info info = ((Info)list.getSelectedValue());
 			System.out.println(info.id);
 		}
