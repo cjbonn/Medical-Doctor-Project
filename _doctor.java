@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class doctor extends JPanel
+public class _doctor extends JPanel
 {
   private JLabel fname,mi,lname,age,sex,height,weight,cComplaint,presill,review,exam,impression,diagnosis;
   private JTextField fn,m,ln,a,s,h,w,cc,illness,rev,pExam,impress,diag;
@@ -13,7 +13,7 @@ public class doctor extends JPanel
   private JList patientList;
   private JPanel nameList,patientInfo,docGuide,comboPanel,labTest,script,pill,needle;
   
-  public doctor()
+  public _doctor()
   {
     setLayout(new BorderLayout());
     //setPreferredSize(new Dimension(200,200));

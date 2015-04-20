@@ -24,10 +24,10 @@ public class MedicalDoctor extends JFrame {
 		createMenu();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-		setVisible(true);
 		login = new Login();
 		login.addWindowListener(new ExitListener());
 		build();
+		setVisible(true);
 		setResizable(false);
 	}
 
@@ -47,11 +47,6 @@ public class MedicalDoctor extends JFrame {
 					mainPanel.add(new JLabel("Unknown account type."), BorderLayout.NORTH);
 				}
 				panel.add(mainPanel, BorderLayout.CENTER);
-				mainPanel.addComponentListener(new ComponentAdapter(){
-					public void componentResized(ComponentEvent e){
-						revalidate();
-					}
-				});
 				// Footer
 				footer = new Footer(login);
 				panel.add(footer, BorderLayout.SOUTH);
@@ -95,7 +90,7 @@ public class MedicalDoctor extends JFrame {
 				System.exit(0);
 				break;
 
-			case "logout": // On Edit > Edit Foods Items
+			case "logout": // On File > Logout
 				login = new Login();
 				login.addWindowListener(new ExitListener());
 				break;

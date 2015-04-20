@@ -4,19 +4,17 @@ import java.awt.*;
 public class DoctorPanel extends JPanel {
 
 	private JLabel fname,mi,lname,age,sex,height,weight,cComplaint,presill,review,exam,impression,diagnosis;
-	  private JTextField fn,m,ln,a,s,h,w,cc,illness,rev,pExam,impress,diag;
-	  private JTextArea history;
-	  private JCheckBox red,white,liver,renal,elec,xray,ct,mri,urine,stool;
-	  private JRadioButton inject,pO,im,iv,sc;
-	  private ButtonGroup injection,perscript;
-	  private JButton submit,cancel;
-	  private JList patientList;
-	  private JPanel nameList,patientInfo,docGuide,comboPanel,labTest,script,pill,needle;
+	private JTextField fn,m,ln,a,s,h,w,cc,illness,rev,pExam,impress,diag;
+	private JTextArea history;
+	private JCheckBox red,white,liver,renal,elec,xray,ct,mri,urine,stool;
+	private JRadioButton inject,pO,im,iv,sc;
+	private ButtonGroup injection,perscript;
+	private JButton submit,cancel;
+	private JList patientList;
+	private JPanel nameList,patientInfo,docGuide,comboPanel,labTest,script,pill,needle;
 
-	  public DoctorPanel()
-	  {
+	public DoctorPanel(){
 	    setLayout(new BorderLayout());
-	    //setPreferredSize(new Dimension(200,200));
 	    buildList();
 	    buildPatient();
 	    buildDocguide();
@@ -30,38 +28,12 @@ public class DoctorPanel extends JPanel {
 	    comboPanel.add(script);
 	    add(nameList,BorderLayout.WEST);
 	    add(comboPanel,BorderLayout.CENTER);
-	    //add(patientInfo,BorderLayout.NORTH);
-	    //add(docGuide,BorderLayout.CENTER);
-
 	  }
 
-	  public void buildList()
-	  {
+	  public void buildList(){
 	   nameList = new JPanel();
 	   nameList.setPreferredSize(new Dimension(200,200));
-	   nameList.setBorder(BorderFactory.createTitledBorder("Name list:"));
-	   /*try
-	   {
-	   Class.forName("com.mysql.jdbc.Driver");
-	   Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs400","root","rapture");
-	   Statement stmt = conn.createStatement();
-	   ResultSet rs = stmt.executeQuery("SELECT name FROM grade");
-	   String[] names = new String[10];
-	   int i=0;
-	   while(rs.next())
-	   {
-	     names[i]=rs.getString("Name");
-	     i++;
-	   }
-	   patientList = new JList(names);
-	   patientList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	   nameList.add(patientList);
-	   }
-	   catch(Exception c)
-	    {
-	      JOptionPane.showMessageDialog(null, c.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
-	    }
-	  }*/
+	   nameList.setBorder(BorderFactory.createTitledBorder("Patients:"));
 	  }
 
 	  public void buildPatient()

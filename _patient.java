@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class patient extends JPanel
+public class _patient extends JPanel
 {
   private JLabel fname,mi,lname,address,insurance,age,height,weight;
   private JTextField fn,m,ln,ad,in,a,h,w;
@@ -10,7 +10,7 @@ public class patient extends JPanel
   private ButtonGroup gender;
   private JButton submit,cancel;
   private JPanel name,info,hist,button;
-  public patient()
+  public _patient()
   {
     setLayout(new GridLayout(4,1));
     setPreferredSize(new Dimension(500,500));

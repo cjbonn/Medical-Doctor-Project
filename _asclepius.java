@@ -2,15 +2,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class asclepius extends JFrame
+public class _asclepius extends JFrame
 {
-  private patient p;
-  private doctor d;
-  private nurse n;
+  private _patient p;
+  private _doctor d;
+  private _nurse n;
   
   private JPanel panelA,panelB,panelC;
   
-  public asclepius()
+  public _asclepius()
   {
     super("Asclepius Medical System");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -32,25 +32,25 @@ public class asclepius extends JFrame
   public void buildA()
   {
     panelA = new JPanel();
-    p = new patient();
+    p = new _patient();
     panelA.add(p);
   }
   
   public void buildB()
   {
     panelB = new JPanel();
-    d = new doctor();
+    d = new _doctor();
     panelB.add(d);
   }
   
   public void buildC()
   {
     panelC = new JPanel();
-    n = new nurse();
+    n = new _nurse();
     panelC.add(n);
   }
   public static void main(String[] args)
 {
-  new asclepius();
+  new _asclepius();
 }
 }

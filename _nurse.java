@@ -1,12 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class nurse extends JPanel
+public class _nurse extends JPanel
 {
   private JLabel name,instructions;
   private JTextField n,i;
   
-  public nurse()
+  public _nurse()
   {
     setLayout(new FlowLayout());
     
