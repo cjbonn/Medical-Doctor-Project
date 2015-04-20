@@ -72,6 +72,10 @@ public class ProjectDB extends DB {
 		} catch (NoSuchAlgorithmException e) {}
 		return str;
     }
+
+	public ArrayList<DBResult> getPatients() {
+		return this.query("SELECT id,fname,lname FROM patients ORDER BY lname,fname");
+	}
 	
 	public int getUserID(){
 		return this.user_id;

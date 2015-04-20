@@ -1,8 +1,12 @@
+import java.sql.Date;
 import java.util.ArrayList;
 
 public class PatientData {
-	String fname,mname,lname,address,city,state,zip,dob,insurance,doctor;
-	int id,height,weight,insuranceid,sex,doctorid;
+	
+	private String fname,mname,lname,address,city,state,zip,insurance,doctor;
+	private int id,height,weight,insuranceid,sex,doctorid;
+	private Date dob;
+	private boolean isLoaded;
 	
 	public PatientData(int id, String fname, String lname){
 		this.id = id;
@@ -10,6 +14,7 @@ public class PatientData {
 		this.lname = lname;
 		insurance = "";
 		doctor = "";
+		isLoaded = false;
 	}
 	
 	public String toString(){
@@ -25,12 +30,17 @@ public class PatientData {
 		city = (String) result.get("city");
 		state = (String) result.get("state");
 		zip = (String) result.get("zip");
-		dob = (String) result.get("dob");
+		dob = (Date) result.get("dob");
 		height = (int) result.get("height");
 		weight = (int) result.get("weight");
 		doctorid = (int) result.get("doctorid");
-		insuranceid = (int) result.get("insurance");
+		insuranceid = (int) result.get("insuranceid");
 		sex = (int) result.get("sex");
+		isLoaded = true;
+	}
+	
+	public int getPatientID(){
+		return id;
 	}
 	
 	public String getFirstName(){
@@ -83,7 +93,7 @@ public class PatientData {
 	}
 	
 	public String getDOB(){
-		return dob;
+		return dob.toString();
 	}
 	
 	public int getDoctorID(){
@@ -116,5 +126,9 @@ public class PatientData {
 		}else{
 			return insurance;
 		}
+	}
+	
+	public boolean isLoaded(){
+		return isLoaded;
 	}
 }
