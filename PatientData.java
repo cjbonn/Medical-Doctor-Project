@@ -92,8 +92,8 @@ public class PatientData {
 		return getHeightInFeet()+"'"+inches+"\"";
 	}
 	
-	public String getDOB(){
-		return dob.toString();
+	public Date getDOB(){
+		return dob;
 	}
 	
 	public int getDoctorID(){

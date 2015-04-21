@@ -23,17 +23,17 @@ public class MedicalDoctor extends JFrame {
 		setSize(500,500);
 		createMenu();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setLocationRelativeTo(null);
+		panel = new JPanel(new BorderLayout());
 		login = new Login();
 		login.addWindowListener(new ExitListener());
 		build();
+		setLocationRelativeTo(null);
+//		setResizable(false);
 		setVisible(true);
-		setResizable(false);
 	}
 
 	public void build(){
 		firstBuild++;
-		panel = new JPanel(new BorderLayout());
 		if(firstBuild >= 2){
 			if(login.isLoggedIn()){
 				if(login.getAccountType() == 0){ // Doctor
@@ -47,6 +47,7 @@ public class MedicalDoctor extends JFrame {
 					mainPanel.add(new JLabel("Unknown account type."), BorderLayout.NORTH);
 				}
 				panel.add(mainPanel, BorderLayout.CENTER);
+				
 				// Footer
 				footer = new Footer(login);
 				panel.add(footer, BorderLayout.SOUTH);
@@ -91,6 +92,7 @@ public class MedicalDoctor extends JFrame {
 				break;
 
 			case "logout": // On File > Logout
+				panel.removeAll();
 				login = new Login();
 				login.addWindowListener(new ExitListener());
 				break;
