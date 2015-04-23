@@ -33,7 +33,7 @@ public class Login extends JFrame{
 		title.setHorizontalAlignment(SwingConstants.CENTER);
 		panel.add(title, BorderLayout.NORTH);
 
-		loginPanel = new JPanel(new GridLayout(0,2));
+		loginPanel = new JPanel(new GridLayout(3,2));
 		username = new JLabel("Username:  ");
 		username.setFont(new Font("Cambria",Font.PLAIN,14));
 		username.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -50,6 +50,11 @@ public class Login extends JFrame{
 
 		pass = new JPasswordField(12);
 		pass.setAlignmentX(LEFT_ALIGNMENT);
+		pass.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				loginBtn.doClick();
+			}
+		});
 		loginPanel.add(pass);
 
 		loginBtn = new JButton("Login");

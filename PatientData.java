@@ -96,6 +96,10 @@ public class PatientData {
 		return dob;
 	}
 	
+	public int getSex(){
+		return sex;
+	}
+	
 	public int getDoctorID(){
 		return doctorid;
 	}
@@ -121,7 +125,7 @@ public class PatientData {
 			ProjectDB DB = new ProjectDB();
 			ArrayList<DBResult> dbr = DB.query("SELECT name FROM insurance WHERE id="+doctorid+" LIMIT 1");
 			DBResult result = dbr.get(0);
-			insurance = (String) result.get("name");
+			insurance = (String) result.get("sex");
 			return insurance;
 		}else{
 			return insurance;

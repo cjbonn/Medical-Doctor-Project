@@ -14,8 +14,9 @@ public class SecretaryPanel extends JPanel {
 
 	private JLabel title;
 	private JList list;
-	private JTextField fname,mname,lname,weight,height;
-	private JComboBox month,day,year;
+	private int userID;
+	private JTextField fname,mname,lname,weight,height,address,city,state,zip;
+	private JComboBox month,day,year,sex;
 	private JButton add,remove;
 	private DefaultListModel items;
 	private ProjectDB DB = new ProjectDB();
@@ -94,6 +95,10 @@ public class SecretaryPanel extends JPanel {
 		infoPanel.add(datePanel);
 		
 		JPanel whPanel = new JPanel();
+		whPanel.add(new JLabel("Sex: "));
+		String[] sexData = {"Sex","Male","Female"};
+		sex = new JComboBox<String>(sexData);
+		whPanel.add(sex);
 		whPanel.add(new JLabel("Weight: "));
 		weight = new JTextField(3);
 		whPanel.add(weight);
@@ -102,11 +107,30 @@ public class SecretaryPanel extends JPanel {
 		whPanel.add(height);
 		infoPanel.add(whPanel);
 		
+		JPanel addressPanel = new JPanel();
+		addressPanel.add(new JLabel("Address: "));
+		address = new JTextField(20);
+		addressPanel.add(address);
+		infoPanel.add(addressPanel);
+		
+		JPanel cszPanel = new JPanel();
+		cszPanel.add(new JLabel("City:"));
+		city = new JTextField(10);
+		cszPanel.add(city);
+		cszPanel.add(new JLabel("State:"));
+		state = new JTextField(2);
+		cszPanel.add(state);
+		cszPanel.add(new JLabel("Zip Code:"));
+		zip = new JTextField(5);
+		cszPanel.add(zip);
+		infoPanel.add(cszPanel);
+		
 		infoPanel.setBorder(BorderFactory.createTitledBorder("Patient Info:"));
 		add(infoPanel, BorderLayout.CENTER);
 	}
 	
 	private void updatePatientData(PatientData p){
+		userID = p.getPatientID();
 		fname.setText(p.getFirstName());
 		mname.setText(p.getMiddleInitial());
 		lname.setText(p.getLastName());
@@ -119,6 +143,11 @@ public class SecretaryPanel extends JPanel {
 		month.setSelectedItem(m);
 		day.setSelectedIndex(Integer.parseInt(d));
 		year.setSelectedItem(y);
+		sex.setSelectedIndex(p.getSex()+1);
+		address.setText(p.getAddress());
+		city.setText(p.getCity());
+		state.setText(p.getState());
+		zip.setText(p.getZipCode());
 	}
 	
 	private class ButtonListener implements ActionListener {
@@ -134,7 +163,6 @@ public class SecretaryPanel extends JPanel {
 			PatientData patient = (PatientData) list.getSelectedValue();
 			if(!patient.isLoaded()) patient.loadPatientInfo();
 			updatePatientData(patient);
-			System.out.println(patient.getFullName());
 		}
 	}
 }
