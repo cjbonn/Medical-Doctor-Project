@@ -9,7 +9,7 @@ public class doctor extends JPanel
   private JTextField n,a,s,h,w,cc,illness,impress,diag,dName;
   private JTextArea history,review,exam;
   private JCheckBox red,white,liver,renal,elec,xray,ct,mri,urine,stool;
-  private JButton submit,cancel,movRight,movLeft;
+  private JButton submit,cancel,edit,movRight,movLeft;
   private JList patientList,perscript,selected;
   private JPanel nameList,patientInfo,info,docGuide,comboPanel,labTest,script,pill,needle,buttonPanel,movButton;
   DefaultListModel listmodel;
@@ -25,9 +25,12 @@ public class doctor extends JPanel
     buildPerscript();
     submit = new JButton("Submit");
     cancel = new JButton("Cancel");
+    edit = new JButton("Edit");
+    edit.addActionListener(new EditListener());
     comboPanel = new JPanel();
     buttonPanel = new JPanel();
     buttonPanel.add(submit);
+    buttonPanel.add(edit);
     buttonPanel.add(cancel);
     comboPanel.setLayout(new GridBagLayout());
     GridBagConstraints c = new GridBagConstraints();
@@ -101,6 +104,7 @@ public class doctor extends JPanel
     history = new JTextArea(5,5);
     history.setEditable(false);
     history.setBorder(BorderFactory.createTitledBorder("History:"));
+    history.setBackground(new Color(238,238,238));
     
     info = new JPanel();
     info.setLayout(new GridLayout(8,1));
@@ -256,4 +260,18 @@ public class doctor extends JPanel
    listmodel.removeElement(selections);
   }
  }
+  
+  private class EditListener implements ActionListener
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+    n.setEditable(true);
+    a.setEditable(true);
+    s.setEditable(true);
+    h.setEditable(true);
+    w.setEditable(true);
+    history.setEditable(true);
+    history.setBackground(Color.WHITE);
+    }
+  }
 }

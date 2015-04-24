@@ -7,16 +7,17 @@ public class nurse extends JPanel
 {
   private JLabel name,age,sex,height,weight;
   private JTextField n,a,s,h,w;
-  private JTextArea history;
+  private JTextArea history,toDo;
   private JButton finished;
   private JList patientList;
-  private JPanel nameList,patientInfo,info,comboPanel,buttonPanel;
+  private JPanel nameList,patientInfo,info,comboPanel,buttonPanel,instruct;
   
   public nurse()
   {
     setLayout(new BorderLayout());
     buildList();
     buildPatient();
+    nurseInstructions();
     finished = new JButton("Done");
     comboPanel = new JPanel();
     buttonPanel = new JPanel();
@@ -28,6 +29,8 @@ public class nurse extends JPanel
     c.gridy=0;
     comboPanel.add(patientInfo,c);
     c.gridy=1;
+    comboPanel.add(instruct,c);
+    c.gridy=2;
     comboPanel.add(buttonPanel,c);
     add(nameList,BorderLayout.WEST);
     add(comboPanel,BorderLayout.CENTER);
@@ -85,9 +88,10 @@ public class nurse extends JPanel
     h.setEditable(false);
     w = new JTextField(3);
     w.setEditable(false);
-    history = new JTextArea(5,5);
+    history = new JTextArea(5,15);
     history.setEditable(false);
     history.setBorder(BorderFactory.createTitledBorder("History:"));
+    history.setBackground(new Color(238,238,238));
     
     info = new JPanel();
     info.setLayout(new GridLayout(8,1));
@@ -102,6 +106,17 @@ public class nurse extends JPanel
     patientInfo.add(info,BorderLayout.WEST);
     patientInfo.add(history,BorderLayout.CENTER);
     add(patientInfo);
+  }
+  
+  public void nurseInstructions()
+  {
+    instruct = new JPanel();
+    instruct.setSize(200,230);
+    toDo = new JTextArea(10,27);
+    toDo.setEditable(false);
+    toDo.setBorder(BorderFactory.createTitledBorder("Instructions:"));
+    toDo.setBackground(new Color(238,238,238));
+    instruct.add(toDo);
   }
     
 }
