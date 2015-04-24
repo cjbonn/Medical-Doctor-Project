@@ -1,11 +1,7 @@
 import java.awt.*;
-
 import javax.swing.*;
-
 import java.awt.event.*;
-
 import javax.swing.event.*;
-
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,12 +9,14 @@ import java.util.ArrayList;
 public class SecretaryPanel extends JPanel {
 
 	private JLabel title;
+	private JPanel infoPanel;
 	private JList list;
 	private int userID;
 	private JTextField fname,mname,lname,weight,height,address,city,state,zip;
-	private JComboBox month,day,year,sex;
-	private JButton add,remove;
+	private JComboBox month,day,year,sex,insurance,doctor;
+	private JButton add,remove,save,cancel;
 	private DefaultListModel items;
+	private DefaultComboBoxModel ditems,iitems;
 	private ProjectDB DB = new ProjectDB();
 	private boolean listIsDisabled = false;
 	
@@ -51,7 +49,7 @@ public class SecretaryPanel extends JPanel {
 		JPanel buttonPanel = new JPanel();
 		remove = new JButton(new ImageIcon("icon_delete.png"));
 		remove.setPreferredSize(new Dimension(32,32));
-		remove.setActionCommand("delete");
+		remove.setActionCommand("remove");
 		remove.addActionListener(new ButtonListener());
 		buttonPanel.add(remove);
 		
@@ -68,7 +66,7 @@ public class SecretaryPanel extends JPanel {
 	}
 	
 	public void buildPatientInfo(){
-		JPanel infoPanel = new JPanel();
+		infoPanel = new JPanel();
 		JPanel namePanel = new JPanel();
 		namePanel.add(new JLabel("Full Name:"));
 		fname = new JTextField(7);
@@ -125,8 +123,48 @@ public class SecretaryPanel extends JPanel {
 		cszPanel.add(zip);
 		infoPanel.add(cszPanel);
 		
+		JPanel doctorPanel = new JPanel();
+		doctorPanel.add(new JLabel("Doctor:"));
+		ditems = new DefaultComboBoxModel();
+		ditems.addElement("");
+		ArrayList<DBResult> docdbr = DB.getDoctorList();
+		for(DBResult r : docdbr){
+			ditems.addElement(new PairedValue((int) r.get("id"),"Dr. "+(String) r.get("lname")));
+		}
+		doctor = new JComboBox(ditems);
+		doctor.setEditable(true);
+		doctorPanel.add(doctor);
+		infoPanel.add(doctorPanel);
+		
+		JPanel insurancePanel = new JPanel();
+		insurancePanel.add(new JLabel("Insurance:"));
+		iitems = new DefaultComboBoxModel();
+		iitems.addElement("");
+		ArrayList<DBResult> idbr = DB.getInsuranceList();
+		for(DBResult r : idbr){
+			iitems.addElement(new PairedValue((int) r.get("id"),(String) r.get("name")));
+		}
+		insurance = new JComboBox(iitems);
+		insurance.setEditable(true);
+		insurancePanel.add(insurance);
+		infoPanel.add(insurancePanel);
+		
+		JPanel buttonPanel = new JPanel();
+		save = new JButton("Edit");
+		save.setActionCommand("edit");
+		save.addActionListener(new ButtonListener());
+		buttonPanel.add(save);
+		buttonPanel.add(new JLabel("  "));
+		cancel = new JButton("Cancel");
+		cancel.setActionCommand("cancel");
+		cancel.addActionListener(new ButtonListener());
+		buttonPanel.add(cancel);
+		infoPanel.add(buttonPanel);
+		
 		infoPanel.setBorder(BorderFactory.createTitledBorder("Patient Info:"));
 		add(infoPanel, BorderLayout.CENTER);
+		
+		disableForm();
 	}
 	
 	private void updatePatientData(PatientData p){
@@ -148,11 +186,86 @@ public class SecretaryPanel extends JPanel {
 		city.setText(p.getCity());
 		state.setText(p.getState());
 		zip.setText(p.getZipCode());
+		doctor.setSelectedItem(p.getDoctorName());
+		insurance.setSelectedItem(p.getInsuranceName());
+	}
+	
+	private void resetPatientData(){
+		userID = 0;
+		fname.setText("");
+		mname.setText("");
+		lname.setText("");
+		weight.setText("");
+		height.setText("");
+		month.setSelectedIndex(0);
+		day.setSelectedIndex(0);
+		year.setSelectedIndex(0);
+		sex.setSelectedIndex(0);
+		address.setText("");
+		city.setText("");
+		state.setText("");
+		zip.setText("");
+		doctor.setSelectedIndex(0);
+		insurance.setSelectedIndex(0);
+	}
+	
+	private void disableForm(){
+		for(Component c : infoPanel.getComponents()){
+			JPanel pl = (JPanel) c;
+			for(Component cc : pl.getComponents()){
+				cc.setFocusable(false);
+			}
+		}
+	}
+	
+	private void enableForm(){
+		for(Component c : infoPanel.getComponents()){
+			JPanel pl = (JPanel) c;
+			for(Component cc : pl.getComponents()){
+				cc.setFocusable(true);
+			}
+		}
 	}
 	
 	private class ButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e){
-			System.out.println("button clicked");
+			switch(e.getActionCommand()){
+			case "save":
+				listIsDisabled = false;
+				list.clearSelection();
+				save.setText("Edit");
+				save.setActionCommand("edit");
+				disableForm();
+				break;
+				
+			case "edit":
+				listIsDisabled = false;
+				save.setText("Save");
+				save.setActionCommand("save");
+				enableForm();
+				break;
+				
+			case "cancel":
+				listIsDisabled = false;
+				resetPatientData();
+				list.clearSelection();
+				disableForm();
+				save.setText("Edit");
+				save.setActionCommand("edit");
+				break;
+				
+			case "add":
+				listIsDisabled = true; 
+				enableForm();
+				resetPatientData();
+				save.setText("Save");
+				save.setActionCommand("save");
+				break;
+				
+			case "remove":
+				resetPatientData();
+				break;
+			}
 		}
 	}
 	
@@ -160,9 +273,35 @@ public class SecretaryPanel extends JPanel {
 		public void valueChanged(ListSelectionEvent e){
 			if(listIsDisabled) return; // When adding new patient
 			if(e.getValueIsAdjusting()) return;
-			PatientData patient = (PatientData) list.getSelectedValue();
-			if(!patient.isLoaded()) patient.loadPatientInfo();
-			updatePatientData(patient);
+			try {
+				PatientData patient = (PatientData) list.getSelectedValue();
+				if(!patient.isLoaded()) patient.loadPatientInfo();
+				updatePatientData(patient);
+			}catch(NullPointerException err){
+				resetPatientData();
+			}
+		}
+	}
+	
+	private class PairedValue {
+		String name;
+		int id;
+		
+		public PairedValue(int id, String str){
+			this.name = str;
+			this.id = id;
+		}
+		
+		public String toString(){
+			return name;
+		}
+		
+		public int getID(){
+			return id;
+		}
+		
+		public String getName(){
+			return this.toString();
 		}
 	}
 }

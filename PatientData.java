@@ -107,10 +107,10 @@ public class PatientData {
 	public String getDoctorName(){
 		if(doctor == ""){
 			ProjectDB DB = new ProjectDB();
-			ArrayList<DBResult> dbr = DB.query("SELECT username FROM users WHERE id="+doctorid+" LIMIT 1");
+			ArrayList<DBResult> dbr = DB.query("SELECT lname FROM users WHERE id="+doctorid+" LIMIT 1");
 			DBResult result = dbr.get(0);
-			doctor = (String) result.get("username");
-			return doctor;
+			doctor = (String) result.get("lname");
+			return "Dr. " +doctor;
 		}else{
 			return doctor;
 		}
@@ -123,9 +123,9 @@ public class PatientData {
 	public String getInsuranceName(){
 		if(insurance == ""){
 			ProjectDB DB = new ProjectDB();
-			ArrayList<DBResult> dbr = DB.query("SELECT name FROM insurance WHERE id="+doctorid+" LIMIT 1");
+			ArrayList<DBResult> dbr = DB.query("SELECT name FROM insurance WHERE id="+insuranceid+" LIMIT 1");
 			DBResult result = dbr.get(0);
-			insurance = (String) result.get("sex");
+			insurance = (String) result.get("name");
 			return insurance;
 		}else{
 			return insurance;

@@ -77,6 +77,14 @@ public class ProjectDB extends DB {
 		return this.query("SELECT id,fname,lname FROM patients ORDER BY lname,fname");
 	}
 	
+	public ArrayList<DBResult> getDoctorList(){
+		return this.query("SELECT id,lname FROM users WHERE type=0 ORDER BY lname");
+	}
+	
+	public ArrayList<DBResult> getInsuranceList(){
+		return this.query("SELECT id,name FROM insurance ORDER BY name");
+	}
+	
 	public int getUserID(){
 		return this.user_id;
 	}
