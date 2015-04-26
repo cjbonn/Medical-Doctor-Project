@@ -38,7 +38,7 @@ public class DB {
 		this.conn = conn;
 	}
 	
-	// Run query that doesn't return anything: CREATE/INSERT/UPDATE/DELETE/DROP/etc
+	// Run query that doesn't return anything: CREATE/UPDATE/DELETE/DROP/etc
 	public boolean execute(String command) throws SQLException {
 	    Statement stmt = null;
 	    try {
@@ -46,8 +46,25 @@ public class DB {
 	        stmt.executeUpdate(command); // This will throw a SQLException if it fails
 	        return true;
 	    } finally {
-	        if (stmt != null) { stmt.close(); }
+	        if(stmt != null) stmt.close();
 	    }
+	}
+	
+	public int insert(String command) throws SQLException {
+		Statement stmt = null;
+		try {
+			stmt = conn.createStatement();
+			stmt.executeUpdate(command, Statement.RETURN_GENERATED_KEYS);
+			try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+	            if (generatedKeys.next()) {
+	                return generatedKeys.getInt(1);
+	            }else{
+	                throw new SQLException("Insert failed.");
+	            }
+	        }
+		} finally {
+			if(stmt != null) stmt.close();
+		}
 	}
 	
 	/*

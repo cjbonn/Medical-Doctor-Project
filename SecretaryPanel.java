@@ -1,7 +1,11 @@
 import java.awt.*;
+
 import javax.swing.*;
+
 import java.awt.event.*;
+
 import javax.swing.event.*;
+
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,7 +15,8 @@ public class SecretaryPanel extends JPanel {
 	private JLabel title;
 	private JPanel infoPanel;
 	private JList list;
-	private int userID;
+	private int currentPatientID;
+	private ArrayList<PairedValue> doctorList;
 	private JTextField fname,mname,lname,weight,height,address,city,state,zip;
 	private JComboBox month,day,year,sex,insurance,doctor;
 	private JButton add,remove,save,cancel;
@@ -127,12 +132,11 @@ public class SecretaryPanel extends JPanel {
 		doctorPanel.add(new JLabel("Doctor:"));
 		ditems = new DefaultComboBoxModel();
 		ditems.addElement("");
+		doctorList = new ArrayList<PairedValue>();
 		ArrayList<DBResult> docdbr = DB.getDoctorList();
-		for(DBResult r : docdbr){
-			ditems.addElement(new PairedValue((int) r.get("id"),"Dr. "+(String) r.get("lname")));
-		}
+		for(DBResult r : docdbr) doctorList.add(new PairedValue((int) r.get("id"),"Dr. "+(String) r.get("lname")));
+		for(PairedValue pv : doctorList) ditems.addElement(pv);	
 		doctor = new JComboBox(ditems);
-		doctor.setEditable(true);
 		doctorPanel.add(doctor);
 		infoPanel.add(doctorPanel);
 		
@@ -168,7 +172,7 @@ public class SecretaryPanel extends JPanel {
 	}
 	
 	private void updatePatientData(PatientData p){
-		userID = p.getPatientID();
+		currentPatientID = p.getPatientID();
 		fname.setText(p.getFirstName());
 		mname.setText(p.getMiddleInitial());
 		lname.setText(p.getLastName());
@@ -186,12 +190,14 @@ public class SecretaryPanel extends JPanel {
 		city.setText(p.getCity());
 		state.setText(p.getState());
 		zip.setText(p.getZipCode());
-		doctor.setSelectedItem(p.getDoctorName());
+		for(int i=0;i<doctorList.size();i++){
+			if(doctorList.get(i).getName().equalsIgnoreCase(p.getDoctorName())) doctor.setSelectedIndex(i+1);
+		}
 		insurance.setSelectedItem(p.getInsuranceName());
 	}
 	
 	private void resetPatientData(){
-		userID = 0;
+		currentPatientID = 0;
 		fname.setText("");
 		mname.setText("");
 		lname.setText("");
@@ -227,63 +233,7 @@ public class SecretaryPanel extends JPanel {
 		}
 	}
 	
-	private class ButtonListener implements ActionListener {
-		public void actionPerformed(ActionEvent e){
-			switch(e.getActionCommand()){
-			case "save":
-				listIsDisabled = false;
-				list.clearSelection();
-				save.setText("Edit");
-				save.setActionCommand("edit");
-				disableForm();
-				break;
-				
-			case "edit":
-				listIsDisabled = false;
-				save.setText("Save");
-				save.setActionCommand("save");
-				enableForm();
-				break;
-				
-			case "cancel":
-				listIsDisabled = false;
-				resetPatientData();
-				list.clearSelection();
-				disableForm();
-				save.setText("Edit");
-				save.setActionCommand("edit");
-				break;
-				
-			case "add":
-				listIsDisabled = true; 
-				enableForm();
-				resetPatientData();
-				save.setText("Save");
-				save.setActionCommand("save");
-				break;
-				
-			case "remove":
-				resetPatientData();
-				break;
-			}
-		}
-	}
-	
-	private class ListListener implements ListSelectionListener	{
-		public void valueChanged(ListSelectionEvent e){
-			if(listIsDisabled) return; // When adding new patient
-			if(e.getValueIsAdjusting()) return;
-			try {
-				PatientData patient = (PatientData) list.getSelectedValue();
-				if(!patient.isLoaded()) patient.loadPatientInfo();
-				updatePatientData(patient);
-			}catch(NullPointerException err){
-				resetPatientData();
-			}
-		}
-	}
-	
-	private class PairedValue {
+	class PairedValue {
 		String name;
 		int id;
 		
@@ -302,6 +252,139 @@ public class SecretaryPanel extends JPanel {
 		
 		public String getName(){
 			return this.toString();
+		}
+	}
+	
+	private class ButtonListener implements ActionListener {
+		public void actionPerformed(ActionEvent e){
+			switch(e.getActionCommand()){
+			case "save":
+				if(updatePatient()){
+					listIsDisabled = false;
+					save.setText("Edit");
+					save.setActionCommand("edit");
+					disableForm();
+					((PatientData) list.getSelectedValue()).isLoaded(false);
+				}
+				break;
+				
+			case "edit":
+				listIsDisabled = true;
+				save.setText("Save");
+				save.setActionCommand("save");
+				enableForm();
+				break;
+				
+			case "cancel":
+				listIsDisabled = false;
+				resetPatientData();
+				list.clearSelection();
+				disableForm();
+				save.setText("Edit");
+				save.setActionCommand("edit");
+				break;
+				
+			case "add":
+				listIsDisabled = true; 
+				enableForm();
+				resetPatientData();
+				save.setText("Add Patient");
+				save.setActionCommand("insert");
+				break;
+			
+			case "insert":
+				listIsDisabled = false;
+				save.setText("Edit");
+				save.setActionCommand("edit");
+				disableForm();
+				break;
+				
+			case "remove":
+				resetPatientData();
+				break;
+			}
+		}
+		
+		private boolean updatePatient(){
+			String firstname = fname.getText();
+			String middlename = mname.getText();
+			String lastname = lname.getText();
+			
+			int monthVal = month.getSelectedIndex();
+			int dayVal = day.getSelectedIndex();
+			int yearVal = (year.getSelectedIndex() > 0) ? Integer.parseInt(year.getSelectedItem().toString()) : -1;
+			
+			int sexVal = sex.getSelectedIndex()-1; // 0 = Male, 1 = Female
+			String weightVal = weight.getText();
+			String heightVal = height.getText();
+			
+			String addressVal = address.getText();
+			String cityVal = city.getText();
+			String stateVal = state.getText();
+			String zipVal = zip.getText();
+			
+			int doctorid = (doctor.getSelectedItem() instanceof PairedValue) ?((PairedValue) doctor.getSelectedItem()).getID() : -1;
+			int insuranceid = checkInsurance(insurance.getSelectedItem());
+			
+			if(firstname.equalsIgnoreCase("") || middlename.equalsIgnoreCase("") || lastname.equalsIgnoreCase("") || addressVal.equalsIgnoreCase("") ||
+			   cityVal.equalsIgnoreCase("") || stateVal.equalsIgnoreCase("") || zipVal.equalsIgnoreCase("") || sexVal < 0 || yearVal < 0 ||
+			   monthVal <= 0 || dayVal <= 0 || !isNumeric(weightVal) || !isNumeric(heightVal) ||
+			   doctorid <= 0 || insuranceid <= 0){
+				JOptionPane.showMessageDialog(null, "Could not submit, there are invalid inputs.", "Update Patient", JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+			
+			int weightInt = Integer.parseInt(weightVal);
+			int heightInt = Integer.parseInt(heightVal);
+			String monthStr = (monthVal < 10) ? "0"+String.valueOf(monthVal) : String.valueOf(monthVal);
+			String dayStr = (dayVal < 10) ? "0"+String.valueOf(dayVal) : String.valueOf(dayVal);
+			String dateofbirth = yearVal+"-"+monthStr+"-"+dayStr;
+			if(DB.updatePatient(currentPatientID, firstname,middlename,lastname, sexVal, dateofbirth, heightInt, weightInt, addressVal, cityVal, stateVal, zipVal, doctorid, insuranceid)){
+				JOptionPane.showMessageDialog(null, "Patient updated successfully.", "Update Patient", JOptionPane.INFORMATION_MESSAGE);
+				return true;
+			}else{
+				JOptionPane.showMessageDialog(null, DB.getError(), "Update Patient", JOptionPane.ERROR_MESSAGE);
+				System.out.println(DB.getErrorInfo());
+				return false;
+			}
+		}
+		
+		private int checkInsurance(Object o){
+			if("".equalsIgnoreCase(o.toString())) return -1;
+			if(o instanceof PairedValue) return ((PairedValue) o).getID();
+			ArrayList<DBResult> dbr = DB.query("SELECT id FROM insurance WHERE name='"+o.toString()+"' LIMIT 1");
+			if(dbr.isEmpty() || dbr.size() < 1){ // insurance doesn't exist
+				int newID = DB.addNewInsurance(o.toString());
+				iitems.addElement(new PairedValue(newID,o.toString()));
+				insurance.setSelectedIndex(iitems.getSize()-1);
+				return newID;
+			}else{
+				DBResult result = dbr.get(0);
+				return (int) result.get("id");
+			}
+		}
+		
+		public boolean isNumeric(String str){  
+			try {  
+				int d = Integer.parseInt(str);  
+			}catch(Exception e){  
+				return false;  
+			}  
+			return true;  
+		}
+	}
+	
+	private class ListListener implements ListSelectionListener	{
+		public void valueChanged(ListSelectionEvent e){
+			if(listIsDisabled) return; // When adding new patient
+			if(e.getValueIsAdjusting()) return;
+			try {
+				PatientData patient = (PatientData) list.getSelectedValue();
+				if(!patient.isLoaded()) patient.loadPatientInfo();
+				updatePatientData(patient);
+			}catch(NullPointerException err){
+				resetPatientData();
+			}
 		}
 	}
 }

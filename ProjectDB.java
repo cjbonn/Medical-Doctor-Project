@@ -9,10 +9,6 @@ public class ProjectDB extends DB {
 	private int user_id,type;
 	private String fname,lname;
 	
-	public ProjectDB(){
-		
-	}
-	
 	public ArrayList<DBResult> query(String command){
 		try {
 			return super.query(command);
@@ -83,6 +79,30 @@ public class ProjectDB extends DB {
 	
 	public ArrayList<DBResult> getInsuranceList(){
 		return this.query("SELECT id,name FROM insurance ORDER BY name");
+	}
+	
+	public int addNewInsurance(String name){
+		try {
+			return this.insert("INSERT INTO insurance VALUES (NULL,'"+name+"')");
+		} catch (SQLException e) {
+			setErrorInfo(e.getMessage());
+			return -1;
+		}
+	}
+
+	public boolean updatePatient(int userid, String fname, String mname,
+			String lname, int sex, String dob, int height,
+			int weight, String address, String city,
+			String state, String zip, int doctorid, int insuranceid) {
+		try {
+			return this.execute("UPDATE patients SET fname='"+fname+"',minitial='"+mname+"',lname='"+lname+"',"
+					+ "doctorid="+doctorid+",sex="+sex+",dob='"+dob+"',height="+height+",weight="+weight+","
+					+ "address='"+address+"',city='"+city+"',state='"+state+"',zip='"+zip+"',insuranceid="+insuranceid+" WHERE id="+userid);
+		} catch (SQLException e) {
+			setErrorInfo(e.getMessage());
+			setError("Failed to update Patient.");
+			return false;
+		}
 	}
 	
 	public int getUserID(){

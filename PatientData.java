@@ -14,7 +14,7 @@ public class PatientData {
 		this.lname = lname;
 		insurance = "";
 		doctor = "";
-		isLoaded = false;
+		isLoaded(false);
 	}
 	
 	public String toString(){
@@ -36,7 +36,7 @@ public class PatientData {
 		doctorid = (int) result.get("doctorid");
 		insuranceid = (int) result.get("insuranceid");
 		sex = (int) result.get("sex");
-		isLoaded = true;
+		isLoaded(true);
 	}
 	
 	public int getPatientID(){
@@ -112,7 +112,7 @@ public class PatientData {
 			doctor = (String) result.get("lname");
 			return "Dr. " +doctor;
 		}else{
-			return doctor;
+			return "Dr. " +doctor;
 		}
 	}
 	
@@ -130,6 +130,10 @@ public class PatientData {
 		}else{
 			return insurance;
 		}
+	}
+	
+	public void isLoaded(boolean b){
+		isLoaded = b; doctor = ""; insurance = "";
 	}
 	
 	public boolean isLoaded(){
