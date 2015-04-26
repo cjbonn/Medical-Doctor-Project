@@ -12,8 +12,6 @@ public class PatientData {
 		this.id = id;
 		this.fname = fname;
 		this.lname = lname;
-		insurance = "";
-		doctor = "";
 		isLoaded(false);
 	}
 	

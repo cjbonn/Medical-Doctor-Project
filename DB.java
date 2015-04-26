@@ -50,6 +50,7 @@ public class DB {
 	    }
 	}
 	
+	// Runs INSERT query, returns the ID of the newly inserted data.
 	public int insert(String command) throws SQLException {
 		Statement stmt = null;
 		try {

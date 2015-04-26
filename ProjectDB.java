@@ -1,7 +1,7 @@
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class ProjectDB extends DB {
 
@@ -90,6 +90,21 @@ public class ProjectDB extends DB {
 		}
 	}
 
+	public int addNewPatient(int userid, String fname, String mname,
+			String lname, int sex, String dob, int height,
+			int weight, String address, String city,
+			String state, String zip, int doctorid, int insuranceid) {
+		try {
+			return this.insert("INSERT INTO patients VALUES (NULL,'"+fname+"','"+mname+"','"+lname+"',"
+					+ doctorid+","+sex+",'"+dob+"',"+height+","+weight+","
+					+ "'"+address+"','"+city+"','"+state+"','"+zip+"',"+insuranceid+")");
+		} catch (SQLException e) {
+			setErrorInfo(e.getMessage());
+			setError("Failed to update Patient.");
+			return -1;
+		}
+	}
+
 	public boolean updatePatient(int userid, String fname, String mname,
 			String lname, int sex, String dob, int height,
 			int weight, String address, String city,
@@ -101,6 +116,16 @@ public class ProjectDB extends DB {
 		} catch (SQLException e) {
 			setErrorInfo(e.getMessage());
 			setError("Failed to update Patient.");
+			return false;
+		}
+	}
+	
+	public boolean removePatient(int id){
+		try {
+			return this.execute("DELETE FROM patients WHERE id="+id+" LIMIT 1");
+		} catch (SQLException e) {
+			setErrorInfo(e.getMessage());
+			setError("Failed to delete patient.");
 			return false;
 		}
 	}

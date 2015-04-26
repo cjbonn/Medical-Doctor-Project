@@ -1,14 +1,10 @@
 import java.awt.*;
-
+import java.util.*;
 import javax.swing.*;
-
-import java.awt.event.*;
-
-import javax.swing.event.*;
-
 import java.sql.Date;
+import java.awt.event.*;
+import javax.swing.event.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 public class SecretaryPanel extends JPanel {
 
@@ -258,6 +254,13 @@ public class SecretaryPanel extends JPanel {
 	private class ButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e){
 			switch(e.getActionCommand()){
+			case "edit":
+				listIsDisabled = true;
+				save.setText("Save");
+				save.setActionCommand("save");
+				enableForm();
+				break;
+				
 			case "save":
 				if(updatePatient()){
 					listIsDisabled = false;
@@ -266,22 +269,6 @@ public class SecretaryPanel extends JPanel {
 					disableForm();
 					((PatientData) list.getSelectedValue()).isLoaded(false);
 				}
-				break;
-				
-			case "edit":
-				listIsDisabled = true;
-				save.setText("Save");
-				save.setActionCommand("save");
-				enableForm();
-				break;
-				
-			case "cancel":
-				listIsDisabled = false;
-				resetPatientData();
-				list.clearSelection();
-				disableForm();
-				save.setText("Edit");
-				save.setActionCommand("edit");
 				break;
 				
 			case "add":
@@ -293,14 +280,33 @@ public class SecretaryPanel extends JPanel {
 				break;
 			
 			case "insert":
-				listIsDisabled = false;
-				save.setText("Edit");
-				save.setActionCommand("edit");
-				disableForm();
+				if(insertPatient()){
+					listIsDisabled = false;
+					save.setText("Edit");
+					save.setActionCommand("edit");
+					disableForm();
+				}
 				break;
 				
 			case "remove":
+				if(list.getSelectedValuesList().size() != 1){
+					JOptionPane.showMessageDialog(null, "One patient must be selected.", "Remove Patient", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this patient?", "Remove Patient", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if(response != JOptionPane.YES_OPTION) return;
+				deletePatient(((PatientData) list.getSelectedValue()).getPatientID());
 				resetPatientData();
+				list.clearSelection();
+				break;
+				
+			case "cancel":
+				listIsDisabled = false;
+				resetPatientData();
+				list.clearSelection();
+				disableForm();
+				save.setText("Edit");
+				save.setActionCommand("edit");
 				break;
 			}
 		}
@@ -346,6 +352,70 @@ public class SecretaryPanel extends JPanel {
 				JOptionPane.showMessageDialog(null, DB.getError(), "Update Patient", JOptionPane.ERROR_MESSAGE);
 				System.out.println(DB.getErrorInfo());
 				return false;
+			}
+		}
+			
+		private boolean insertPatient(){
+			String firstname = fname.getText();
+			String middlename = mname.getText();
+			String lastname = lname.getText();
+			
+			int monthVal = month.getSelectedIndex();
+			int dayVal = day.getSelectedIndex();
+			int yearVal = (year.getSelectedIndex() > 0) ? Integer.parseInt(year.getSelectedItem().toString()) : -1;
+			
+			int sexVal = sex.getSelectedIndex()-1; // 0 = Male, 1 = Female
+			String weightVal = weight.getText();
+			String heightVal = height.getText();
+			
+			String addressVal = address.getText();
+			String cityVal = city.getText();
+			String stateVal = state.getText();
+			String zipVal = zip.getText();
+			
+			int doctorid = (doctor.getSelectedItem() instanceof PairedValue) ?((PairedValue) doctor.getSelectedItem()).getID() : -1;
+			int insuranceid = checkInsurance(insurance.getSelectedItem());
+			
+			if(firstname.equalsIgnoreCase("") || middlename.equalsIgnoreCase("") || lastname.equalsIgnoreCase("") || addressVal.equalsIgnoreCase("") ||
+			   cityVal.equalsIgnoreCase("") || stateVal.equalsIgnoreCase("") || zipVal.equalsIgnoreCase("") || sexVal < 0 || yearVal < 0 ||
+			   monthVal <= 0 || dayVal <= 0 || !isNumeric(weightVal) || !isNumeric(heightVal) ||
+			   doctorid <= 0 || insuranceid <= 0){
+				JOptionPane.showMessageDialog(null, "Could not submit, there are invalid inputs.", "New Patient", JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+			
+			int weightInt = Integer.parseInt(weightVal);
+			int heightInt = Integer.parseInt(heightVal);
+			String monthStr = (monthVal < 10) ? "0"+String.valueOf(monthVal) : String.valueOf(monthVal);
+			String dayStr = (dayVal < 10) ? "0"+String.valueOf(dayVal) : String.valueOf(dayVal);
+			String dateofbirth = yearVal+"-"+monthStr+"-"+dayStr;
+			int newID = DB.addNewPatient(currentPatientID, firstname,middlename,lastname, sexVal, dateofbirth, heightInt, weightInt, addressVal, cityVal, stateVal, zipVal, doctorid, insuranceid);
+			if(newID > 0){
+				JOptionPane.showMessageDialog(null, "Patient added successfully.", "New Patient", JOptionPane.INFORMATION_MESSAGE);
+				items.clear();
+				ArrayList<DBResult> patientList = DB.getPatients();
+				for(DBResult r : patientList){
+					items.addElement(new PatientData((int) r.get("id"),(String) r.get("fname"),(String) r.get("lname")));
+				}
+				return true;
+			}else{
+				JOptionPane.showMessageDialog(null, DB.getError(), "New Patient", JOptionPane.ERROR_MESSAGE);
+				System.out.println(DB.getErrorInfo());
+				return false;
+			}
+		}
+		
+		private void deletePatient(int id){
+			if(DB.removePatient(id)){
+				JOptionPane.showMessageDialog(null, "Patient removed successfully.", "Remove Patient", JOptionPane.INFORMATION_MESSAGE);
+				items.clear();
+				ArrayList<DBResult> patientList = DB.getPatients();
+				for(DBResult r : patientList){
+					items.addElement(new PatientData((int) r.get("id"),(String) r.get("fname"),(String) r.get("lname")));
+				}
+			}else{
+				JOptionPane.showMessageDialog(null, DB.getError(), "Remove Patient", JOptionPane.ERROR_MESSAGE);
+				System.out.println(DB.getErrorInfo());
 			}
 		}
 		
