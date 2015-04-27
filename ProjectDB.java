@@ -130,6 +130,10 @@ public class ProjectDB extends DB {
 		}
 	}
 	
+	public ArrayList<DBResult> getPatientHistory(int id){
+		return this.query("SELECT id,visit_date FROM visits WHERE patientid="+id+" ORDER BY visit_date DESC");
+	}
+	
 	public int getUserID(){
 		return this.user_id;
 	}

@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -8,19 +9,20 @@ import javax.swing.event.*;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 public class DoctorPanel extends JPanel {
 
 	private JLabel name,age,sex,height,weight,cComplaint,presill,impression,diagnosis;
-	private JTextField n,a,s,h,w,cc,illness,impress,diag,dName;
-	private JTextArea history,review,exam;
+	private JTextField n,a,h,w,cc,illness,impress,diag,dName;
+	private JTextArea review,exam;
 	private JCheckBox red,white,liver,renal,elec,xray,ct,mri,urine,stool;
 	private JButton submit,cancel,edit,movRight,movLeft;
-	private JList patientList,perscript,selected,list;
+	private JList patientList,history,perscript,selected,list;
 	private JPanel nameList,patientInfo,info,docGuide,comboPanel,labTest,script,pill,needle,buttonPanel,movButton;
+	private int currentPatientID,patientAge;
+	private boolean listIsDisabled = false;
 	private ProjectDB DB = new ProjectDB();
-	DefaultListModel listmodel,items;
+	private DefaultListModel listmodel,hitems,items;
 	
 	public DoctorPanel(){
 		setLayout(new BorderLayout());
@@ -82,18 +84,17 @@ public class DoctorPanel extends JPanel {
 		height = new JLabel("Height: ");
 		weight = new JLabel("Weight: "); 
 		
-		n = new JTextField(10);
+		n = new JTextField(12);
 		n.setEditable(false);
 		a = new JTextField(3);
 		a.setEditable(false);
-		s = new JTextField(6);
-		s.setEditable(false);
 		h = new JTextField(4);
 		h.setEditable(false);
 		w = new JTextField(3);
 		w.setEditable(false);
-		history = new JTextArea(5,5);
-		history.setEditable(false);
+		hitems = new DefaultListModel();
+		history = new JList(hitems);
+		history.addMouseListener(new HistoryListener());
 		history.setBorder(BorderFactory.createTitledBorder("History:"));
 		history.setBackground(new Color(238,238,238));
 		
@@ -196,7 +197,7 @@ public class DoctorPanel extends JPanel {
 		movButton = new JPanel();
 		script.setLayout(new GridLayout(1,3));
 		movButton.setLayout(new BoxLayout(movButton,BoxLayout.Y_AXIS));
-		String[] prescriptions ={"Intramuscular injection","Intravascular injection","Subcutaneous injection","Oral Medication"};
+		String[] prescriptions ={"Intramuscular Injection","Intravascular Injection","Subcutaneous Injection","Oral Medication"};
 		perscript = new JList(prescriptions);
 		perscript.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listmodel = new DefaultListModel();
@@ -221,47 +222,62 @@ public class DoctorPanel extends JPanel {
 	}
 	
 	private void updatePatientData(PatientData p){
-//		currentPatientID = p.getPatientID();
-//		fname.setText(p.getFirstName());
-//		mname.setText(p.getMiddleInitial());
-//		lname.setText(p.getLastName());
-//		weight.setText(String.valueOf(p.getWeight()));
-//		height.setText(String.valueOf(p.getHeight()));
-//		Date date = p.getDOB();
-//		String m = new SimpleDateFormat("MMMMMMMM").format(date);
-//		String d = new SimpleDateFormat("dd").format(date);
-//		String y = new SimpleDateFormat("yyyy").format(date);
-//		month.setSelectedItem(m);
-//		day.setSelectedIndex(Integer.parseInt(d));
-//		year.setSelectedItem(y);
-//		sex.setSelectedIndex(p.getSex()+1);
-//		address.setText(p.getAddress());
-//		city.setText(p.getCity());
-//		state.setText(p.getState());
-//		zip.setText(p.getZipCode());
-//		for(int i=0;i<doctorList.size();i++){
-//			if(doctorList.get(i).getName().equalsIgnoreCase(p.getDoctorName())) doctor.setSelectedIndex(i+1);
-//		}
-//		insurance.setSelectedItem(p.getInsuranceName());
+		currentPatientID = p.getPatientID();
+		n.setText(p.getFullName());
+		w.setText(String.valueOf(p.getWeight()));
+		h.setText(p.getFormattedHeight());
+		Date date = p.getDOB();
+		int m = Integer.parseInt(new SimpleDateFormat("MM").format(date));
+		int d = Integer.parseInt(new SimpleDateFormat("dd").format(date));
+		int y = Integer.parseInt(new SimpleDateFormat("yyyy").format(date));
+		int mnow = Integer.parseInt(new SimpleDateFormat("MM").format(new java.util.Date()));
+		int dnow = Integer.parseInt(new SimpleDateFormat("dd").format(new java.util.Date()));
+		int ynow = Integer.parseInt(new SimpleDateFormat("yyyy").format(new java.util.Date()));
+		patientAge = ynow - y;
+		if(mnow < m) patientAge--;
+		else if(m == mnow && dnow < d) patientAge--;
+		a.setText(String.valueOf(patientAge));
+		hitems.clear();
+		ArrayList<DBResult> dbr = p.getHistory();
+		if(dbr.isEmpty() || dbr.size() < 1){
+			hitems.addElement("None");
+		}else{
+			for(DBResult r : dbr){
+				System.out.println(r);
+				hitems.addElement(new PairedValue((int) r.get("id"), new SimpleDateFormat("MM-dd-YYYY").format(r.get("visit_date"))));
+			}
+		}
 	}
 	
 	private void resetPatientData(){
-//		currentPatientID = 0;
-//		fname.setText("");
-//		mname.setText("");
-//		lname.setText("");
-//		weight.setText("");
-//		height.setText("");
-//		month.setSelectedIndex(0);
-//		day.setSelectedIndex(0);
-//		year.setSelectedIndex(0);
-//		sex.setSelectedIndex(0);
-//		address.setText("");
-//		city.setText("");
-//		state.setText("");
-//		zip.setText("");
-//		doctor.setSelectedIndex(0);
-//		insurance.setSelectedIndex(0);
+		currentPatientID = 0;
+		n.setText("");
+		a.setText("");
+		w.setText("");
+		h.setText("");
+		hitems.clear();
+	}
+	
+	class PairedValue {
+		String name;
+		int id;
+		
+		public PairedValue(int id, String str){
+			this.name = str;
+			this.id = id;
+		}
+		
+		public String toString(){
+			return name;
+		}
+		
+		public int getID(){
+			return id;
+		}
+		
+		public String getName(){
+			return this.toString();
+		}
 	}
 	
 	private class RightListener implements ActionListener{
@@ -287,17 +303,15 @@ public class DoctorPanel extends JPanel {
 		public void actionPerformed(ActionEvent e){
 			n.setEditable(true);
 			a.setEditable(true);
-			s.setEditable(true);
 			h.setEditable(true);
 			w.setEditable(true);
-			history.setEditable(true);
 			history.setBackground(Color.WHITE);
 		}
 	}
 	
 	private class ListListener implements ListSelectionListener	{
 		public void valueChanged(ListSelectionEvent e){
-			//if(listIsDisabled) return; // When adding new patient
+			if(listIsDisabled) return; // When adding new visit
 			if(e.getValueIsAdjusting()) return;
 			try {
 				PatientData patient = (PatientData) list.getSelectedValue();
@@ -305,6 +319,16 @@ public class DoctorPanel extends JPanel {
 				updatePatientData(patient);
 			}catch(NullPointerException err){
 				resetPatientData();
+			}
+		}
+	}
+	
+	private class HistoryListener extends MouseAdapter {
+		public void mouseClicked(MouseEvent e){
+			if(!(history.getSelectedValue() instanceof PairedValue)) return;
+			if(e.getClickCount() == 2){
+				System.out.println("double clicked");
+				//PairedValue p = (PairedValue) history.getSelectedValue();
 			}
 		}
 	}

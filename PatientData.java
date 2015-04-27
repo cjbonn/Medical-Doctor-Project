@@ -5,6 +5,7 @@ public class PatientData {
 	
 	private String fname,mname,lname,address,city,state,zip,insurance,doctor;
 	private int id,height,weight,insuranceid,sex,doctorid;
+	private ArrayList<DBResult> history;
 	private Date dob;
 	private boolean isLoaded;
 	
@@ -12,6 +13,7 @@ public class PatientData {
 		this.id = id;
 		this.fname = fname;
 		this.lname = lname;
+		this.history = new ArrayList<DBResult>();
 		isLoaded(false);
 	}
 	
@@ -130,8 +132,18 @@ public class PatientData {
 		}
 	}
 	
+	public ArrayList<DBResult> getHistory(){
+		if(history.size() > 0) return history;
+		ProjectDB DB = new ProjectDB();
+		history = DB.getPatientHistory(this.getPatientID());
+		return history;
+	}
+	
 	public void isLoaded(boolean b){
-		isLoaded = b; doctor = ""; insurance = "";
+		isLoaded = b; 
+		if(!b){
+			doctor = ""; insurance = ""; 
+		}
 	}
 	
 	public boolean isLoaded(){
