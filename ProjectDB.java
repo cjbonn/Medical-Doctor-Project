@@ -81,6 +81,10 @@ public class ProjectDB extends DB {
 		return this.query("SELECT id,name FROM insurance ORDER BY name");
 	}
 	
+	public ArrayList<DBResult> getPrescriptionList(){
+		return this.query("SELECT id,prescription,abbr FROM prescriptiontype ORDER BY abbr");
+	}
+	
 	public int addNewInsurance(String name){
 		try {
 			return this.insert("INSERT INTO insurance VALUES (NULL,'"+name+"')");
@@ -131,7 +135,19 @@ public class ProjectDB extends DB {
 	}
 	
 	public ArrayList<DBResult> getPatientHistory(int id){
-		return this.query("SELECT id,visit_date FROM visits WHERE patientid="+id+" ORDER BY visit_date DESC");
+		return this.query("SELECT id,visit_date,complaint FROM visits WHERE patientid="+id+" ORDER BY visit_date DESC");
+	}
+	
+	public ArrayList<DBResult> getVisitByID(int id){
+		return this.query("SELECT * FROM visits WHERE id="+id+" LIMIT 1");
+	}
+	
+	public ArrayList<DBResult> getLabsForID(int id){
+		return this.query("SELECT T.test FROM labs L INNER JOIN labtype T ON L.ltype = T.id WHERE L.visit_id="+id);
+	}
+	
+	public ArrayList<DBResult> getPrescriptionsForID(int id){
+		return this.query("SELECT T.abbr,P.pname FROM prescriptions P INNER JOIN prescriptiontype T ON P.ptype = T.id WHERE P.visit_id="+id);
 	}
 	
 	public int getUserID(){

@@ -37,7 +37,7 @@ public class MedicalDoctor extends JFrame {
 			if(login.isLoggedIn()){
 				if(login.getAccountType() == 0){ // Doctor
 					mainPanel = new DoctorPanel();
-					setSize(800,800);
+					setSize(650,650);
 				}else if(login.getAccountType() == 1){ // Nurse
 					mainPanel = new NursePanel();
 					setSize(500,500);

@@ -24,6 +24,7 @@ public class Login extends JFrame{
 		add(panel);
 		setLocationRelativeTo(null);
 		setVisible(true);
+		setResizable(false);
 	}
 
 	public void build(){

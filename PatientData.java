@@ -1,4 +1,5 @@
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class PatientData {
@@ -8,6 +9,12 @@ public class PatientData {
 	private ArrayList<DBResult> history;
 	private Date dob;
 	private boolean isLoaded;
+	
+	public PatientData(int id){
+		this.id = id;
+		this.history = new ArrayList<DBResult>();
+		isLoaded(false);
+	}
 	
 	public PatientData(int id, String fname, String lname){
 		this.id = id;
@@ -25,7 +32,9 @@ public class PatientData {
 		ProjectDB DB = new ProjectDB();
 		ArrayList<DBResult> dbr = DB.query("SELECT * FROM patients WHERE id="+id+" LIMIT 1");
 		DBResult result = dbr.get(0);
+		fname = (String) result.get("fname");
 		mname = (String) result.get("minitial");
+		lname = (String) result.get("lname");
 		address = (String) result.get("address");
 		city = (String) result.get("city");
 		state = (String) result.get("state");
@@ -56,7 +65,7 @@ public class PatientData {
 	}
 	
 	public String getFullName(){
-		return fname+" "+mname+" "+lname;
+		return fname+" "+mname+". "+lname;
 	}
 	
 	public String getAddress(){
@@ -94,6 +103,20 @@ public class PatientData {
 	
 	public Date getDOB(){
 		return dob;
+	}
+	
+	public int getAge(){
+		Date date = this.getDOB();
+		int m = Integer.parseInt(new SimpleDateFormat("MM").format(date));
+		int d = Integer.parseInt(new SimpleDateFormat("dd").format(date));
+		int y = Integer.parseInt(new SimpleDateFormat("yyyy").format(date));
+		int mnow = Integer.parseInt(new SimpleDateFormat("MM").format(new java.util.Date()));
+		int dnow = Integer.parseInt(new SimpleDateFormat("dd").format(new java.util.Date()));
+		int ynow = Integer.parseInt(new SimpleDateFormat("yyyy").format(new java.util.Date()));
+		int patientAge = ynow - y;
+		if(mnow < m) patientAge--;
+		else if(m == mnow && dnow < d) patientAge--;
+		return patientAge;
 	}
 	
 	public int getSex(){

@@ -16,7 +16,7 @@ public class DoctorPanel extends JPanel {
 	private JTextField n,a,h,w,cc,illness,impress,diag,dName;
 	private JTextArea review,exam;
 	private JCheckBox red,white,liver,renal,elec,xray,ct,mri,urine,stool;
-	private JButton submit,cancel,edit,movRight,movLeft;
+	private JButton submit,cancel,movRight,movLeft;
 	private JList patientList,history,perscript,selected,list;
 	private JPanel nameList,patientInfo,info,docGuide,comboPanel,labTest,script,pill,needle,buttonPanel,movButton;
 	private int currentPatientID,patientAge;
@@ -34,12 +34,9 @@ public class DoctorPanel extends JPanel {
 		buildPerscript();
 		submit = new JButton("Submit");
 		cancel = new JButton("Cancel");
-		edit = new JButton("Edit");
-		edit.addActionListener(new EditListener());
 		comboPanel = new JPanel();
 		buttonPanel = new JPanel();
 		buttonPanel.add(submit);
-		buttonPanel.add(edit);
 		buttonPanel.add(cancel);
 		comboPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -120,10 +117,10 @@ public class DoctorPanel extends JPanel {
 		cComplaint = new JLabel("Cheif Complaint: ");
 		presill = new JLabel("Present Illness: ");
 		review = new JTextArea(5,5);
-		review.setEditable(false);
+		//review.setEditable(false);
 		review.setBorder(BorderFactory.createTitledBorder("Review of System:"));
 		exam = new JTextArea(5,5);
-		exam.setEditable(false);
+		//exam.setEditable(false);
 		exam.setBorder(BorderFactory.createTitledBorder("Physical Exam:"));
 		impression = new JLabel("Impression: ");
 		diagnosis = new JLabel("Diagnosis: ");
@@ -197,19 +194,23 @@ public class DoctorPanel extends JPanel {
 		movButton = new JPanel();
 		script.setLayout(new GridLayout(1,3));
 		movButton.setLayout(new BoxLayout(movButton,BoxLayout.Y_AXIS));
-		String[] prescriptions ={"Intramuscular Injection","Intravascular Injection","Subcutaneous Injection","Oral Medication"};
+		DefaultListModel prescriptions = new DefaultListModel();
+		ArrayList<DBResult> pr = DB.getPrescriptionList();
+		for(DBResult pers : pr) prescriptions.addElement(new PairedValue((int) pers.get("id"), (String) pers.get("prescription"),(String) pers.get("abbr")));
 		perscript = new JList(prescriptions);
 		perscript.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listmodel = new DefaultListModel();
 		selected = new JList(listmodel);
 		selected.setVisibleRowCount(6);
-		selected.setBorder(BorderFactory.createTitledBorder("Persciptions:"));
+		selected.setBorder(BorderFactory.createTitledBorder("Prescriptions:"));
 		movRight = new JButton(">>");
 		movRight.setAlignmentX(CENTER_ALIGNMENT);
-		movRight.addActionListener(new RightListener());
+		movRight.setActionCommand("right");
+		movRight.addActionListener(new ButtonListener());
 		movLeft = new JButton("<<");
 		movLeft.setAlignmentX(CENTER_ALIGNMENT);
-		movLeft.addActionListener(new LeftListener());
+		movLeft.setActionCommand("left");
+		movLeft.addActionListener(new ButtonListener());
 		dName = new JTextField(10);
 		dName.setBorder(BorderFactory.createTitledBorder("Medication:"));
 		script.add(perscript);
@@ -226,16 +227,7 @@ public class DoctorPanel extends JPanel {
 		n.setText(p.getFullName());
 		w.setText(String.valueOf(p.getWeight()));
 		h.setText(p.getFormattedHeight());
-		Date date = p.getDOB();
-		int m = Integer.parseInt(new SimpleDateFormat("MM").format(date));
-		int d = Integer.parseInt(new SimpleDateFormat("dd").format(date));
-		int y = Integer.parseInt(new SimpleDateFormat("yyyy").format(date));
-		int mnow = Integer.parseInt(new SimpleDateFormat("MM").format(new java.util.Date()));
-		int dnow = Integer.parseInt(new SimpleDateFormat("dd").format(new java.util.Date()));
-		int ynow = Integer.parseInt(new SimpleDateFormat("yyyy").format(new java.util.Date()));
-		patientAge = ynow - y;
-		if(mnow < m) patientAge--;
-		else if(m == mnow && dnow < d) patientAge--;
+		patientAge = p.getAge();
 		a.setText(String.valueOf(patientAge));
 		hitems.clear();
 		ArrayList<DBResult> dbr = p.getHistory();
@@ -243,8 +235,7 @@ public class DoctorPanel extends JPanel {
 			hitems.addElement("None");
 		}else{
 			for(DBResult r : dbr){
-				System.out.println(r);
-				hitems.addElement(new PairedValue((int) r.get("id"), new SimpleDateFormat("MM-dd-YYYY").format(r.get("visit_date"))));
+				hitems.addElement(new PairedValue((int) r.get("id"), new SimpleDateFormat("MM-dd-YYYY").format(r.get("visit_date"))+" - "+r.get("complaint")));
 			}
 		}
 	}
@@ -259,11 +250,17 @@ public class DoctorPanel extends JPanel {
 	}
 	
 	class PairedValue {
-		String name;
+		String name,name2;
 		int id;
 		
 		public PairedValue(int id, String str){
 			this.name = str;
+			this.id = id;
+		}
+		
+		public PairedValue(int id, String str, String str2){
+			this.name = str;
+			this.name2 = str2;
 			this.id = id;
 		}
 		
@@ -280,32 +277,52 @@ public class DoctorPanel extends JPanel {
 		}
 	}
 	
-	private class RightListener implements ActionListener{
-		public void actionPerformed(ActionEvent e){
-			Object selections = perscript.getSelectedValue();
-			String drug="";
-			if(selections=="Intramuscular injection") drug="IM";
-			else if(selections=="Intravascular injection") drug="IV";
-			else if(selections=="Subcutaneous injection") drug="SC";
-			else if(selections=="Oral Medication") drug="OM";
-			listmodel.addElement(drug+"-"+dName.getText());
-			dName.setText("");
+	class PairedValue2 {
+		String val,val2;
+		int id;
+		
+		public PairedValue2(int id, String str, String str2){
+			this.val = str;
+			this.val2 = str2;
+			this.id = id;
 		}
-	}
-	private class LeftListener implements ActionListener{
-		public void actionPerformed(ActionEvent e){
-			Object selections = selected.getSelectedValue();
-			listmodel.removeElement(selections);
+		
+		public String toString(){
+			return val+" - "+val2;
+		}
+		
+		public int getID(){
+			return id;
+		}
+		
+		public String getName(){
+			return this.toString();
 		}
 	}
 	
-	private class EditListener implements ActionListener {
+	private class ButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e){
-			n.setEditable(true);
-			a.setEditable(true);
-			h.setEditable(true);
-			w.setEditable(true);
-			history.setBackground(Color.WHITE);
+			switch(e.getActionCommand()){
+			case "right":
+				addPrescription();
+				break;
+
+			case "left":
+				removePrescription();
+				break;
+			}
+		}
+		
+		private void addPrescription(){
+			PairedValue pv = (PairedValue) perscript.getSelectedValue();
+			String pname = dName.getText();
+			listmodel.addElement(new PairedValue2(pv.getID(),pv.name2,pname));
+			dName.setText("");
+		}
+		
+		private void removePrescription(){
+			Object selections = selected.getSelectedValue();
+			listmodel.removeElement(selections);
 		}
 	}
 	
@@ -327,8 +344,9 @@ public class DoctorPanel extends JPanel {
 		public void mouseClicked(MouseEvent e){
 			if(!(history.getSelectedValue() instanceof PairedValue)) return;
 			if(e.getClickCount() == 2){
-				System.out.println("double clicked");
-				//PairedValue p = (PairedValue) history.getSelectedValue();
+				PairedValue p = (PairedValue) history.getSelectedValue();
+				new VisitData(p.getID());
+				history.clearSelection();
 			}
 		}
 	}
