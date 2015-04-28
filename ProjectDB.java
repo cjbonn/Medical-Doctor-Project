@@ -14,7 +14,7 @@ public class ProjectDB extends DB {
 			return super.query(command);
 		} catch(SQLException e){
 			setError("There was a problem querying the database.");
-			setErrorInfo(e.getMessage());
+			setErrorInfo(Thread.currentThread().getStackTrace()[1].getMethodName()+": "+e.getMessage());
 			return new ArrayList<DBResult>();
 		}
 	}
@@ -82,14 +82,18 @@ public class ProjectDB extends DB {
 	}
 	
 	public ArrayList<DBResult> getPrescriptionList(){
-		return this.query("SELECT id,prescription,abbr FROM prescriptiontype ORDER BY abbr");
+		return this.query("SELECT id,prescription,abbr FROM prescriptiontype ORDER BY id");
+	}
+	
+	public ArrayList<DBResult> getLabTestList(){
+		return this.query("SELECT id,test FROM labtype ORDER BY test");
 	}
 	
 	public int addNewInsurance(String name){
 		try {
 			return this.insert("INSERT INTO insurance VALUES (NULL,'"+name+"')");
 		} catch (SQLException e) {
-			setErrorInfo(e.getMessage());
+			setErrorInfo(Thread.currentThread().getStackTrace()[1].getMethodName()+": "+e.getMessage());
 			return -1;
 		}
 	}
@@ -103,9 +107,40 @@ public class ProjectDB extends DB {
 					+ doctorid+","+sex+",'"+dob+"',"+height+","+weight+","
 					+ "'"+address+"','"+city+"','"+state+"','"+zip+"',"+insuranceid+")");
 		} catch (SQLException e) {
-			setErrorInfo(e.getMessage());
+			setErrorInfo(Thread.currentThread().getStackTrace()[1].getMethodName()+": "+e.getMessage());
 			setError("Failed to update Patient.");
 			return -1;
+		}
+	}
+	
+	public int addNewVisit(int patientid, String complaint, String symptoms, String physical, String illness, String impression, String diagnosis){
+		try {
+			return this.insert("INSERT INTO visits VALUES (NULL,"+patientid+",NULL,'"+complaint+"','"+symptoms+"','"
+								+physical+"','"+illness+"','"+impression+"','"+diagnosis+"')");
+		} catch (SQLException e) {
+			setErrorInfo(Thread.currentThread().getStackTrace()[1].getMethodName()+": "+e.getMessage());
+			setError("Failed to add visit.");
+			return -1;
+		}
+	}
+	
+	public boolean addVisitLabTests(int visitid, int lab){
+		try {
+			return this.execute("INSERT INTO labs VALUES (NULL,"+visitid+","+lab+")");
+		} catch (SQLException e) {
+			setErrorInfo(Thread.currentThread().getStackTrace()[1].getMethodName()+": "+e.getMessage());
+			setError("Failed to add lab tests.");
+			return false;
+		}
+	}
+	
+	public boolean addVisitPrescriptions(int visitid, int ptype, String pname){
+		try {
+			return this.execute("INSERT INTO prescriptions VALUES (NULL,"+visitid+","+ptype+",'"+pname+"',0)");
+		} catch (SQLException e) {
+			setErrorInfo(Thread.currentThread().getStackTrace()[1].getMethodName()+": "+e.getMessage());
+			setError("Failed to add prescriptions.");
+			return false;
 		}
 	}
 
@@ -118,7 +153,7 @@ public class ProjectDB extends DB {
 					+ "doctorid="+doctorid+",sex="+sex+",dob='"+dob+"',height="+height+",weight="+weight+","
 					+ "address='"+address+"',city='"+city+"',state='"+state+"',zip='"+zip+"',insuranceid="+insuranceid+" WHERE id="+userid);
 		} catch (SQLException e) {
-			setErrorInfo(e.getMessage());
+			setErrorInfo(Thread.currentThread().getStackTrace()[1].getMethodName()+": "+e.getMessage());
 			setError("Failed to update Patient.");
 			return false;
 		}
@@ -128,7 +163,7 @@ public class ProjectDB extends DB {
 		try {
 			return this.execute("DELETE FROM patients WHERE id="+id+" LIMIT 1");
 		} catch (SQLException e) {
-			setErrorInfo(e.getMessage());
+			setErrorInfo(Thread.currentThread().getStackTrace()[1].getMethodName()+": "+e.getMessage());
 			setError("Failed to delete patient.");
 			return false;
 		}

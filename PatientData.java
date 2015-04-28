@@ -165,7 +165,7 @@ public class PatientData {
 	public void isLoaded(boolean b){
 		isLoaded = b; 
 		if(!b){
-			doctor = ""; insurance = ""; 
+			doctor = ""; insurance = ""; history.clear();
 		}
 	}
 	

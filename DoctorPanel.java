@@ -8,6 +8,7 @@ import java.awt.event.*;
 import javax.swing.event.*;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
 public class DoctorPanel extends JPanel {
@@ -18,6 +19,8 @@ public class DoctorPanel extends JPanel {
 	private JCheckBox red,white,liver,renal,elec,xray,ct,mri,urine,stool;
 	private JButton submit,cancel,movRight,movLeft;
 	private JList patientList,history,perscript,selected,list;
+	private JTabbedPane tab;
+	private ArrayList<JCheckBox> labTests;
 	private JPanel nameList,patientInfo,info,docGuide,comboPanel,labTest,script,pill,needle,buttonPanel,movButton;
 	private int currentPatientID,patientAge;
 	private boolean listIsDisabled = false;
@@ -26,14 +29,20 @@ public class DoctorPanel extends JPanel {
 	
 	public DoctorPanel(){
 		setLayout(new BorderLayout());
-		JTabbedPane tab = new JTabbedPane();
+		tab = new JTabbedPane();
 		buildList();
 		buildPatient();
 		buildDocguide();
 		buildLab();
 		buildPerscript();
-		submit = new JButton("Submit");
+		submit = new JButton("Add Visit");
+		submit.setActionCommand("add");
+		submit.addActionListener(new ButtonListener());
+		submit.setEnabled(false);
 		cancel = new JButton("Cancel");
+		cancel.setActionCommand("cancel");
+		cancel.addActionListener(new ButtonListener());
+		cancel.setEnabled(false);
 		comboPanel = new JPanel();
 		buttonPanel = new JPanel();
 		buttonPanel.add(submit);
@@ -166,27 +175,15 @@ public class DoctorPanel extends JPanel {
 	
 	public void buildLab(){
 		labTest = new JPanel();
-		labTest.setLayout(new GridLayout(5,2));
-		red = new JCheckBox("Red Blood Cell");
-		white= new JCheckBox("White Blood Cell");
-		liver= new JCheckBox("Liver Function");
-		renal= new JCheckBox("Renal Function");
-		elec= new JCheckBox("Electrol");
-		xray= new JCheckBox("X-Ray");
-		ct= new JCheckBox("Computed Tomography");
-		mri= new JCheckBox("Magnetic Resonance Image");
-		urine= new JCheckBox("Urine");
-		stool= new JCheckBox("Stool");
-		labTest.add(red);
-		labTest.add(white);
-		labTest.add(liver);
-		labTest.add(renal);
-		labTest.add(elec);
-		labTest.add(xray);
-		labTest.add(ct);
-		labTest.add(mri);
-		labTest.add(urine);
-		labTest.add(stool);
+		labTest.setLayout(new GridLayout(0,2));
+		labTests = new ArrayList<JCheckBox>();
+		ArrayList<DBResult> dbr = DB.getLabTestList();
+		for(DBResult labs : dbr){
+			JCheckBox tempCheck = new JCheckBox((String) labs.get("test"));
+			tempCheck.setActionCommand(String.valueOf(labs.get("id")));
+			labTests.add(tempCheck);
+		}
+		for(JCheckBox cb : labTests) labTest.add(cb);
 	}
 	
 	public void buildPerscript(){
@@ -238,15 +235,31 @@ public class DoctorPanel extends JPanel {
 				hitems.addElement(new PairedValue((int) r.get("id"), new SimpleDateFormat("MM-dd-YYYY").format(r.get("visit_date"))+" - "+r.get("complaint")));
 			}
 		}
+		submit.setEnabled(true);
+		cancel.setEnabled(true);
 	}
 	
 	private void resetPatientData(){
-		currentPatientID = 0;
+		currentPatientID = -1;
 		n.setText("");
 		a.setText("");
 		w.setText("");
 		h.setText("");
+		h.setText("");
+		cc.setText("");
+		illness.setText("");
+		impress.setText("");
+		diag.setText("");
+		review.setText("");
+		exam.setText("");
 		hitems.clear();
+		for(JCheckBox cb : labTests) cb.setSelected(false);
+		dName.setText("");
+		listmodel.clear();
+		list.clearSelection();
+		tab.setSelectedIndex(0);
+		submit.setEnabled(false);
+		cancel.setEnabled(false);
 	}
 	
 	class PairedValue {
@@ -310,7 +323,70 @@ public class DoctorPanel extends JPanel {
 			case "left":
 				removePrescription();
 				break;
+				
+			case "add":
+				if(addVisit()) resetPatientData();
+				break;
+				
+			case "cancel":
+				resetPatientData();
+				break;
 			}
+		}
+		
+		private boolean addVisit(){
+			String ccv = cc.getText();
+			String illnessv = illness.getText();
+			String impressv = impress.getText();
+			String diagv = diag.getText();
+			String reviewv = review.getText();
+			String examv = exam.getText();
+			
+			if(ccv.equalsIgnoreCase("")){
+				JOptionPane.showMessageDialog(null, "Cannot submit without a visit reason.", "New Visit", JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+			
+			try {
+				DB.getConnection().setAutoCommit(false);
+				// Visit Insert
+				int newID = DB.addNewVisit(currentPatientID, ccv, reviewv, examv, illnessv, impressv, diagv);
+				if(newID < 0){
+					System.out.println(DB.getErrorInfo());
+					JOptionPane.showMessageDialog(null, DB.getError(), "New Visit", JOptionPane.ERROR_MESSAGE);
+					DB.getConnection().rollback();
+					return false;
+				}
+				// Lab Tests Insert
+				for(JCheckBox cb : labTests){
+					if(cb.isSelected()){
+						if(!DB.addVisitLabTests(newID, Integer.parseInt(cb.getActionCommand()))){
+							DB.getConnection().rollback();
+							System.out.println(DB.getErrorInfo());
+							JOptionPane.showMessageDialog(null, DB.getError(), "New Visit", JOptionPane.ERROR_MESSAGE);
+							return false;
+						}
+					}
+				}
+				// Prescriptions Insert
+				for(Object pv : listmodel.toArray()){
+					PairedValue2 obj = (PairedValue2) pv;
+					if(!DB.addVisitPrescriptions(newID, obj.getID(), obj.val2)){
+						DB.getConnection().rollback();
+						System.out.println(DB.getErrorInfo());
+						JOptionPane.showMessageDialog(null, DB.getError(), "New Visit", JOptionPane.ERROR_MESSAGE);
+						return false;
+					}
+				}
+				DB.getConnection().commit();
+				JOptionPane.showMessageDialog(null, "New visit added successfully", "New Visit", JOptionPane.INFORMATION_MESSAGE);
+				((PatientData) list.getSelectedValue()).isLoaded(false);
+				return true;
+			} catch (SQLException e) {
+				System.out.println(DB.getErrorInfo());
+				JOptionPane.showMessageDialog(null, DB.getError(), "New Visit", JOptionPane.ERROR_MESSAGE);
+				return false;
+			}			
 		}
 		
 		private void addPrescription(){
