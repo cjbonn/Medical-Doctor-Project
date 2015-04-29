@@ -70,7 +70,7 @@ public class ProjectDB extends DB {
     }
 
 	public ArrayList<DBResult> getPatients() {
-		return this.query("SELECT id,fname,lname FROM patients ORDER BY lname,fname");
+		return this.query("SELECT id,fname,lname FROM patients WHERE doctorid="+user_id+" ORDER BY lname,fname");
 	}
 	
 	public ArrayList<DBResult> getDoctorList(){
@@ -87,6 +87,10 @@ public class ProjectDB extends DB {
 	
 	public ArrayList<DBResult> getLabTestList(){
 		return this.query("SELECT id,test FROM labtype ORDER BY test");
+	}
+	
+	public ArrayList<DBResult> getPatientsNeedingPrescriptionList(){
+		return this.query("SELECT * FROM (SELECT P.id,P.fname,P.lname FROM prescriptions R INNER JOIN visits V ON R.visit_id=V.id INNER JOIN patients P ON P.id=V.patientid WHERE R.completed=0 GROUP BY P.id) Tbl ORDER BY id");
 	}
 	
 	public int addNewInsurance(String name){
@@ -159,6 +163,16 @@ public class ProjectDB extends DB {
 		}
 	}
 	
+	public boolean updatePrescription(int id){
+		try {
+			return this.execute("UPDATE prescriptions SET completed=1 WHERE id="+id+" LIMIT 1");
+		} catch (SQLException e) {
+			setErrorInfo(Thread.currentThread().getStackTrace()[1].getMethodName()+": "+e.getMessage());
+			setError("Failed to save prescription.");
+			return false;
+		}
+	}
+	
 	public boolean removePatient(int id){
 		try {
 			return this.execute("DELETE FROM patients WHERE id="+id+" LIMIT 1");
@@ -181,8 +195,9 @@ public class ProjectDB extends DB {
 		return this.query("SELECT T.test FROM labs L INNER JOIN labtype T ON L.ltype = T.id WHERE L.visit_id="+id);
 	}
 	
-	public ArrayList<DBResult> getPrescriptionsForID(int id){
-		return this.query("SELECT T.abbr,P.pname FROM prescriptions P INNER JOIN prescriptiontype T ON P.ptype = T.id WHERE P.visit_id="+id);
+	public ArrayList<DBResult> getPrescriptionsForID(int id, boolean whereNotCompleted){
+		String append = (whereNotCompleted) ? "completed=0 AND " : "";
+		return this.query("SELECT P.id,T.abbr,P.pname FROM prescriptions P INNER JOIN prescriptiontype T ON P.ptype = T.id WHERE "+append+"P.visit_id="+id);
 	}
 	
 	public int getUserID(){

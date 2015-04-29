@@ -102,6 +102,10 @@ public class Login extends JFrame{
 	public String getFullName(){
 		return ProjectDB.getFullName();
 	}
+	
+	public ProjectDB DBHandle(){
+		return ProjectDB;
+	}
 
 	public void trigger_error(){
 		error.setVisible(true);

@@ -18,10 +18,11 @@ public class SecretaryPanel extends JPanel {
 	private JButton add,remove,save,cancel;
 	private DefaultListModel items;
 	private DefaultComboBoxModel ditems,iitems;
-	private ProjectDB DB = new ProjectDB();
+	private ProjectDB DB;
 	private boolean listIsDisabled = false;
 	
-	public SecretaryPanel(){
+	public SecretaryPanel(ProjectDB dbh){
+		this.DB = dbh;
 		setLayout(new BorderLayout());
 		
 		title = new JLabel("Patient Database");

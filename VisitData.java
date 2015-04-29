@@ -70,7 +70,7 @@ public class VisitData extends JFrame {
 		tab.add(labPanel, "Lab Tests");
 
 		JPanel perPanel = new JPanel();
-		ArrayList<DBResult> pr = DB.getPrescriptionsForID(visitid);
+		ArrayList<DBResult> pr = DB.getPrescriptionsForID(visitid,false);
 		String prescriptions = "";
 		if(pr.isEmpty() || pr.size() < 1) prescriptions = "None.  ";
 		for(DBResult r : pr) prescriptions += r.get("pname")+" ("+r.get("abbr")+"), ";

@@ -11,6 +11,7 @@ public class MedicalDoctor extends JFrame {
 	JMenuBar menuBar;
 	JMenu fileMenu;
 	JMenuItem exitItem,logoutItem;
+	final static int IS_DOCTOR = 0, IS_NURSE = 1, IS_SECRETARY = 2;
 
 	private int firstBuild = 0;
 
@@ -35,14 +36,15 @@ public class MedicalDoctor extends JFrame {
 		firstBuild++;
 		if(firstBuild >= 2){
 			if(login.isLoggedIn()){
-				if(login.getAccountType() == 0){ // Doctor
-					mainPanel = new DoctorPanel();
+				ProjectDB dbh = login.DBHandle();
+				if(login.getAccountType() == IS_DOCTOR){ // Doctor
+					mainPanel = new DoctorPanel(dbh);
 					setSize(650,650);
-				}else if(login.getAccountType() == 1){ // Nurse
-					mainPanel = new NursePanel();
-					setSize(700,700);
-				}else if(login.getAccountType() == 2){ // Secretary
-					mainPanel = new SecretaryPanel();
+				}else if(login.getAccountType() == IS_NURSE){ // Nurse
+					mainPanel = new NursePanel(dbh);
+					setSize(650,400);
+				}else if(login.getAccountType() == IS_SECRETARY){ // Secretary
+					mainPanel = new SecretaryPanel(dbh);
 					setSize(500,500);
 				}else{ // Other
 					mainPanel = new JPanel();

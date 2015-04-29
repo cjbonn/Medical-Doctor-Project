@@ -13,21 +13,21 @@ import java.text.SimpleDateFormat;
 
 public class DoctorPanel extends JPanel {
 
-	private JLabel name,age,sex,height,weight,cComplaint,presill,impression,diagnosis;
+	private JLabel name,age,height,weight,cComplaint,presill,impression,diagnosis;
 	private JTextField n,a,h,w,cc,illness,impress,diag,dName;
 	private JTextArea review,exam;
-	private JCheckBox red,white,liver,renal,elec,xray,ct,mri,urine,stool;
 	private JButton submit,cancel,movRight,movLeft;
-	private JList patientList,history,perscript,selected,list;
+	private JList history,perscript,selected,list;
 	private JTabbedPane tab;
 	private ArrayList<JCheckBox> labTests;
-	private JPanel nameList,patientInfo,info,docGuide,comboPanel,labTest,script,pill,needle,buttonPanel,movButton;
+	private JPanel nameList,patientInfo,info,docGuide,comboPanel,labTest,script,buttonPanel,movButton;
 	private int currentPatientID,patientAge;
 	private boolean listIsDisabled = false;
-	private ProjectDB DB = new ProjectDB();
+	private ProjectDB DB;
 	private DefaultListModel listmodel,hitems,items;
 	
-	public DoctorPanel(){
+	public DoctorPanel(ProjectDB dbh){
+		this.DB = dbh;
 		setLayout(new BorderLayout());
 		tab = new JTabbedPane();
 		buildList();
@@ -86,7 +86,6 @@ public class DoctorPanel extends JPanel {
 		patientInfo.setBorder(BorderFactory.createTitledBorder("Patient Info:"));
 		name = new JLabel("Name: ");
 		age = new JLabel("Age: ");
-		sex = new JLabel("Gender: ");
 		height = new JLabel("Height: ");
 		weight = new JLabel("Weight: "); 
 		
@@ -220,6 +219,7 @@ public class DoctorPanel extends JPanel {
 	}
 	
 	private void updatePatientData(PatientData p){
+		System.out.println("Width: "+history.getSize().width + ". Height: "+ history.getSize().height);
 		currentPatientID = p.getPatientID();
 		n.setText(p.getFullName());
 		w.setText(String.valueOf(p.getWeight()));
