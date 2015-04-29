@@ -68,7 +68,7 @@ public class DoctorPanel extends JPanel {
 		nameList = new JPanel();
 		nameList.setPreferredSize(new Dimension(200,200));
 		items = new DefaultListModel();
-		ArrayList<DBResult> patientList = DB.getPatients();
+		ArrayList<DBResult> patientList = DB.getPatients(true);
 		for(DBResult r : patientList) items.addElement(new PatientData((int) r.get("id"),(String) r.get("fname"),(String) r.get("lname")));
 		list = new JList(items);
 		list.setVisibleRowCount(40);
@@ -219,7 +219,6 @@ public class DoctorPanel extends JPanel {
 	}
 	
 	private void updatePatientData(PatientData p){
-		System.out.println("Width: "+history.getSize().width + ". Height: "+ history.getSize().height);
 		currentPatientID = p.getPatientID();
 		n.setText(p.getFullName());
 		w.setText(String.valueOf(p.getWeight()));
@@ -256,7 +255,9 @@ public class DoctorPanel extends JPanel {
 		for(JCheckBox cb : labTests) cb.setSelected(false);
 		dName.setText("");
 		listmodel.clear();
+		int temp = (!list.isSelectionEmpty()) ? list.getSelectedIndex() : -1;
 		list.clearSelection();
+		if(temp > -1) list.setSelectedIndex(temp);
 		tab.setSelectedIndex(0);
 		submit.setEnabled(false);
 		cancel.setEnabled(false);

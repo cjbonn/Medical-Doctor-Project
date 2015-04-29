@@ -69,8 +69,9 @@ public class ProjectDB extends DB {
 		return str;
     }
 
-	public ArrayList<DBResult> getPatients() {
-		return this.query("SELECT id,fname,lname FROM patients WHERE doctorid="+user_id+" ORDER BY lname,fname");
+	public ArrayList<DBResult> getPatients(boolean isDoctor) {
+		String append = (isDoctor) ? " WHERE doctorid="+user_id : "";
+		return this.query("SELECT id,fname,lname FROM patients"+append+" ORDER BY lname,fname");
 	}
 	
 	public ArrayList<DBResult> getDoctorList(){

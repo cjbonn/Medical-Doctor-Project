@@ -22,9 +22,8 @@ public class SecretaryPanel extends JPanel {
 	private boolean listIsDisabled = false;
 	
 	public SecretaryPanel(ProjectDB dbh){
-		this.DB = dbh;
 		setLayout(new BorderLayout());
-		
+		this.DB = dbh;
 		title = new JLabel("Patient Database");
 		title.setFont(new Font("Cambria",Font.BOLD,18));
 		title.setHorizontalAlignment(SwingConstants.CENTER);
@@ -37,12 +36,12 @@ public class SecretaryPanel extends JPanel {
 	public void buildPatientList(){
 		JPanel patientPanel = new JPanel(new GridLayout(2,1));
 		items = new DefaultListModel();
-		ArrayList<DBResult> patientList = DB.getPatients();
+		ArrayList<DBResult> patientList = DB.getPatients(false);
 		for(DBResult r : patientList){
 			items.addElement(new PatientData((int) r.get("id"),(String) r.get("fname"),(String) r.get("lname")));
 		}
 		list = new JList(items);
-		list.setVisibleRowCount(40);
+		//list.setVisibleRowCount(40);
 		list.addListSelectionListener(new ListListener());
 		JScrollPane listScrollPane = new JScrollPane(list);
 		listScrollPane.setBorder(BorderFactory.createTitledBorder("Patients:"));
@@ -304,7 +303,9 @@ public class SecretaryPanel extends JPanel {
 			case "cancel":
 				listIsDisabled = false;
 				resetPatientData();
+				int temp = (!list.isSelectionEmpty()) ? list.getSelectedIndex() : -1;
 				list.clearSelection();
+				if(temp > -1) list.setSelectedIndex(temp);
 				disableForm();
 				save.setText("Edit");
 				save.setActionCommand("edit");
@@ -394,7 +395,7 @@ public class SecretaryPanel extends JPanel {
 			if(newID > 0){
 				JOptionPane.showMessageDialog(null, "Patient added successfully.", "New Patient", JOptionPane.INFORMATION_MESSAGE);
 				items.clear();
-				ArrayList<DBResult> patientList = DB.getPatients();
+				ArrayList<DBResult> patientList = DB.getPatients(false);
 				for(DBResult r : patientList){
 					items.addElement(new PatientData((int) r.get("id"),(String) r.get("fname"),(String) r.get("lname")));
 				}
@@ -410,7 +411,7 @@ public class SecretaryPanel extends JPanel {
 			if(DB.removePatient(id)){
 				JOptionPane.showMessageDialog(null, "Patient removed successfully.", "Remove Patient", JOptionPane.INFORMATION_MESSAGE);
 				items.clear();
-				ArrayList<DBResult> patientList = DB.getPatients();
+				ArrayList<DBResult> patientList = DB.getPatients(false);
 				for(DBResult r : patientList){
 					items.addElement(new PatientData((int) r.get("id"),(String) r.get("fname"),(String) r.get("lname")));
 				}
