@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.util.*;
+
 public class DB {
 	
 	private String server = "localhost",
@@ -93,6 +94,7 @@ public class DB {
 		return dbr;
 	}
 	
+	// Returns the current connection to the database
 	public Connection getConnection(){
 		if(conn == null){
 			this.connect();

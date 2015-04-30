@@ -1,5 +1,5 @@
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 // Stores one row of a database result set.
 public class DBResult {
@@ -21,6 +21,7 @@ public class DBResult {
 		return this.getResult().get(key);
 	}
 	
+	// Converts the current database result into a readable key: val format
 	public String toString(){
 		return data.toString();
 	}

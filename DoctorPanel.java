@@ -64,6 +64,7 @@ public class DoctorPanel extends JPanel {
 		add(comboPanel,BorderLayout.CENTER);
 	}
 	
+	// Creates the list of patients for the doctor
 	public void buildList(){
 		nameList = new JPanel();
 		nameList.setPreferredSize(new Dimension(200,200));
@@ -79,6 +80,7 @@ public class DoctorPanel extends JPanel {
 		nameList.add(listScrollPane);
 	}
 	
+	// Creates the box for patient information
 	public void buildPatient(){
 		patientInfo = new JPanel();
 		patientInfo.setSize(200,230);
@@ -118,6 +120,7 @@ public class DoctorPanel extends JPanel {
 		add(patientInfo);
 	}
 	
+	// Creates the panel for general doctor information
 	public void buildDocguide(){
 		docGuide = new JPanel();
 		docGuide.setLayout(new GridBagLayout());
@@ -172,6 +175,7 @@ public class DoctorPanel extends JPanel {
 		docGuide.add(exam,c);
 	}
 	
+	// Creates the panel for choosing lab tests
 	public void buildLab(){
 		labTest = new JPanel();
 		labTest.setLayout(new GridLayout(0,2));
@@ -185,6 +189,7 @@ public class DoctorPanel extends JPanel {
 		for(JCheckBox cb : labTests) labTest.add(cb);
 	}
 	
+	// Creates the panel for choosing perscriptions
 	public void buildPerscript(){
 		script = new JPanel();
 		movButton = new JPanel();
@@ -218,6 +223,7 @@ public class DoctorPanel extends JPanel {
 		script.add(selected);
 	}
 	
+	// Updates the information box depending on the patient chosen
 	private void updatePatientData(PatientData p){
 		currentPatientID = p.getPatientID();
 		n.setText(p.getFullName());
@@ -238,6 +244,7 @@ public class DoctorPanel extends JPanel {
 		cancel.setEnabled(true);
 	}
 	
+	// Reset the patient information box
 	private void resetPatientData(){
 		currentPatientID = -1;
 		n.setText("");
@@ -263,6 +270,7 @@ public class DoctorPanel extends JPanel {
 		cancel.setEnabled(false);
 	}
 	
+	// Object for storing Key=>Value pairs for use in JList
 	class PairedValue {
 		String name,name2;
 		int id;
@@ -314,6 +322,7 @@ public class DoctorPanel extends JPanel {
 		}
 	}
 	
+	// Handles all the button events
 	private class ButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e){
 			switch(e.getActionCommand()){
@@ -335,6 +344,7 @@ public class DoctorPanel extends JPanel {
 			}
 		}
 		
+		// Adds the current visit data to the database
 		private boolean addVisit(){
 			String ccv = cc.getText();
 			String illnessv = illness.getText();
@@ -390,6 +400,7 @@ public class DoctorPanel extends JPanel {
 			}			
 		}
 		
+		// Event to store a prescription and medication chosen
 		private void addPrescription(){
 			PairedValue pv = (PairedValue) perscript.getSelectedValue();
 			String pname = dName.getText();
@@ -397,12 +408,14 @@ public class DoctorPanel extends JPanel {
 			dName.setText("");
 		}
 		
+		// Even to to remove a prescription chosen
 		private void removePrescription(){
 			Object selections = selected.getSelectedValue();
 			listmodel.removeElement(selections);
 		}
 	}
 	
+	// Handles when the patient list has a selected item, loads patient data
 	private class ListListener implements ListSelectionListener	{
 		public void valueChanged(ListSelectionEvent e){
 			if(listIsDisabled) return; // When adding new visit
@@ -417,6 +430,7 @@ public class DoctorPanel extends JPanel {
 		}
 	}
 	
+	// Handles when a past visit item is double clicked.
 	private class HistoryListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e){
 			if(!(history.getSelectedValue() instanceof PairedValue)) return;

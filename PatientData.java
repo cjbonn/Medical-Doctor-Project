@@ -24,10 +24,12 @@ public class PatientData {
 		isLoaded(false);
 	}
 	
+	// Converts the Object into LastName, FirstName string for use in JList
 	public String toString(){
 		return lname+", "+fname;
 	}
 	
+	// Trigger the loading of all the patient details
 	public void loadPatientInfo(){
 		ProjectDB DB = new ProjectDB();
 		ArrayList<DBResult> dbr = DB.query("SELECT * FROM patients WHERE id="+id+" LIMIT 1");
@@ -105,6 +107,7 @@ public class PatientData {
 		return dob;
 	}
 	
+	// Calculate the current age based on the date of birth and current date
 	public int getAge(){
 		Date date = this.getDOB();
 		int m = Integer.parseInt(new SimpleDateFormat("MM").format(date));
@@ -127,6 +130,7 @@ public class PatientData {
 		return doctorid;
 	}
 	
+	// Get the doctor name based off the doctorid retrieve from loadPatientInfo()
 	public String getDoctorName(){
 		if(doctor == ""){
 			ProjectDB DB = new ProjectDB();
@@ -143,6 +147,7 @@ public class PatientData {
 		return insuranceid;
 	}
 	
+	// Get the insurance name based off the insuranceid retrieve from loadPatientInfo()
 	public String getInsuranceName(){
 		if(insurance == ""){
 			ProjectDB DB = new ProjectDB();
@@ -155,6 +160,7 @@ public class PatientData {
 		}
 	}
 	
+	// Return list of past visits by this patient
 	public ArrayList<DBResult> getHistory(){
 		if(history.size() > 0) return history;
 		ProjectDB DB = new ProjectDB();
@@ -162,6 +168,7 @@ public class PatientData {
 		return history;
 	}
 	
+	// Sets if the object is loaded, if not loaded, will refresh data
 	public void isLoaded(boolean b){
 		isLoaded = b; 
 		if(!b){

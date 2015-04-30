@@ -72,6 +72,7 @@ public class Login extends JFrame{
 		panel.add(loginPanel,BorderLayout.CENTER);
 	}
 
+	// Mark the current login attempt as successful
 	public void login_success(){
 		isLoggedIn = true;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

@@ -33,6 +33,7 @@ public class SecretaryPanel extends JPanel {
 		buildPatientInfo();
 	}
 	
+	// Create a list of all patients
 	public void buildPatientList(){
 		JPanel patientPanel = new JPanel(new GridLayout(2,1));
 		items = new DefaultListModel();
@@ -66,6 +67,7 @@ public class SecretaryPanel extends JPanel {
 		add(patientPanel, BorderLayout.WEST);
 	}
 	
+	// Create the information box for patient information
 	public void buildPatientInfo(){
 		infoPanel = new JPanel();
 		JPanel namePanel = new JPanel();
@@ -167,6 +169,7 @@ public class SecretaryPanel extends JPanel {
 		disableForm();
 	}
 	
+	// Load currently selected patient's details
 	private void updatePatientData(PatientData p){
 		currentPatientID = p.getPatientID();
 		fname.setText(p.getFirstName());
@@ -192,6 +195,7 @@ public class SecretaryPanel extends JPanel {
 		insurance.setSelectedItem(p.getInsuranceName());
 	}
 	
+	// Reset the information box
 	private void resetPatientData(){
 		currentPatientID = 0;
 		fname.setText("");
@@ -211,6 +215,7 @@ public class SecretaryPanel extends JPanel {
 		insurance.setSelectedIndex(0);
 	}
 	
+	// Disabled editing of the form
 	private void disableForm(){
 		for(Component c : infoPanel.getComponents()){
 			JPanel pl = (JPanel) c;
@@ -220,6 +225,7 @@ public class SecretaryPanel extends JPanel {
 		}
 	}
 	
+	// Enables editing of the form
 	private void enableForm(){
 		for(Component c : infoPanel.getComponents()){
 			JPanel pl = (JPanel) c;
@@ -229,6 +235,7 @@ public class SecretaryPanel extends JPanel {
 		}
 	}
 	
+	// Key:Val Object for use in JList
 	class PairedValue {
 		String name;
 		int id;
@@ -251,6 +258,7 @@ public class SecretaryPanel extends JPanel {
 		}
 	}
 	
+	// Handles all Button events
 	private class ButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e){
 			switch(e.getActionCommand()){
@@ -313,6 +321,7 @@ public class SecretaryPanel extends JPanel {
 			}
 		}
 		
+		// Validated and updates patient information if changed.
 		private boolean updatePatient(){
 			String firstname = fname.getText();
 			String middlename = mname.getText();
@@ -356,7 +365,8 @@ public class SecretaryPanel extends JPanel {
 				return false;
 			}
 		}
-			
+		
+		// Add a new patient
 		private boolean insertPatient(){
 			String firstname = fname.getText();
 			String middlename = mname.getText();
@@ -407,6 +417,7 @@ public class SecretaryPanel extends JPanel {
 			}
 		}
 		
+		// Delete an existing patient
 		private void deletePatient(int id){
 			if(DB.removePatient(id)){
 				JOptionPane.showMessageDialog(null, "Patient removed successfully.", "Remove Patient", JOptionPane.INFORMATION_MESSAGE);
@@ -421,6 +432,7 @@ public class SecretaryPanel extends JPanel {
 			}
 		}
 		
+		// Check if insurance agency exists, add new if it doesn't
 		private int checkInsurance(Object o){
 			if("".equalsIgnoreCase(o.toString())) return -1;
 			if(o instanceof PairedValue) return ((PairedValue) o).getID();
@@ -436,6 +448,7 @@ public class SecretaryPanel extends JPanel {
 			}
 		}
 		
+		// Check if a value is numeric
 		public boolean isNumeric(String str){  
 			try {  
 				int d = Integer.parseInt(str);  
@@ -446,6 +459,7 @@ public class SecretaryPanel extends JPanel {
 		}
 	}
 	
+	// Handles when a patient is selected and loads information
 	private class ListListener implements ListSelectionListener	{
 		public void valueChanged(ListSelectionEvent e){
 			if(listIsDisabled) return; // When adding new patient

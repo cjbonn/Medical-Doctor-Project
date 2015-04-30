@@ -45,6 +45,7 @@ public class NursePanel extends JPanel {
 		add(comboPanel,BorderLayout.CENTER);
 	}
 
+	// Create the List of patients that need prescriptions administered
 	public void buildList(){
 		nameList = new JPanel();
 		nameList.setPreferredSize(new Dimension(200,200));
@@ -61,6 +62,7 @@ public class NursePanel extends JPanel {
 		nameList.add(listScrollPane);
 	}
 
+	// Create the infobox with patients' details
 	public void buildPatient(){
 		patientInfo = new JPanel();
 		patientInfo.setSize(200,230);
@@ -100,6 +102,7 @@ public class NursePanel extends JPanel {
 		add(patientInfo);
 	}
 
+	// Create the list of needed prescriptions
 	public void buildPrescription(){
 		pre = new JPanel();
 		pre.setLayout(new GridLayout(0,1));
@@ -109,6 +112,7 @@ public class NursePanel extends JPanel {
 		pcbs = new ArrayList<JCheckBox>();
 	}
 
+	// Update the infobox with the currently selected patient's information
 	private void updatePatientData(PatientData p){
 		currentPatientID = p.getPatientID();
 		n.setText(p.getFullName());
@@ -143,6 +147,7 @@ public class NursePanel extends JPanel {
 		}
 	}
 
+	// Reset the infobox
 	private void resetPatientData(){
 		currentPatientID = -1;
 		n.setText("");
@@ -156,6 +161,7 @@ public class NursePanel extends JPanel {
 		list.clearSelection();
 	}
 
+	// Used for Key=>Val items (JList)
 	class PairedValue {
 		String name,name2;
 		int id;
@@ -184,6 +190,7 @@ public class NursePanel extends JPanel {
 		}
 	}
 	
+	// Handles when a prescription's checkbox has been checked.
 	private class PrescriptionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e){
 			JCheckBox cb = (JCheckBox) e.getSource();
@@ -200,6 +207,7 @@ public class NursePanel extends JPanel {
 		}
 	}
 
+	// Handles when the patient list has a patient selected
 	private class ListListener implements ListSelectionListener	{
 		public void valueChanged(ListSelectionEvent e){
 			if(listIsDisabled) return; // When adding new visit
@@ -214,6 +222,7 @@ public class NursePanel extends JPanel {
 		}
 	}
 
+	// Handles when a patient's past visits are double clicked
 	private class HistoryListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e){
 			if(!(history.getSelectedValue() instanceof PairedValue)) return;

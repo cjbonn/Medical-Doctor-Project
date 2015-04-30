@@ -24,6 +24,7 @@ public class Footer extends JPanel {
 		this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
 	}
 	
+	// Update the current displayed time
 	public void updateTime(){
 		footerTime.setText(getCurrentTime());
 		revalidate();
