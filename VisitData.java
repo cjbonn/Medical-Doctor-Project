@@ -1,5 +1,9 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.awt.event.*;
+import java.io.*;
+
+
 
 import javax.swing.*;
 
@@ -8,6 +12,11 @@ public class VisitData extends JFrame {
 	private int visitid;
 	private JPanel panel;
 	private ProjectDB DB = new ProjectDB();
+	private PatientData p;
+	private DBResult v;
+	private String tests = "";
+	private String prescriptions = "";
+	private JTextArea ros, pe;
 
 	public VisitData(int visitid){
 		super("Medical Doctor - Visit Information");
@@ -25,8 +34,8 @@ public class VisitData extends JFrame {
 		panel = new JPanel();
 		JTabbedPane tab = new JTabbedPane();
 		ArrayList<DBResult> visitdbr = DB.getVisitByID(visitid);
-		DBResult v = visitdbr.get(0);
-		PatientData p = new PatientData((int) v.get("patientid"));	p.loadPatientInfo();
+		v = visitdbr.get(0);
+		p = new PatientData((int) v.get("patientid"));	p.loadPatientInfo();
 
 		JPanel patientInfoPanel = new JPanel(new GridLayout(1,2));
 		JPanel pip1 = new JPanel(new GridLayout(3,2));
@@ -48,12 +57,12 @@ public class VisitData extends JFrame {
 		vp1.add(new JLabel("Impression: "+v.get("impression")));
 		vp1.add(new JLabel("Diagnosis: "+v.get("diagnosis")));
 		visitPanel.add(vp1);
-		JTextArea ros = new JTextArea(); ros.setText((String) v.get("symptoms"));
+		ros = new JTextArea(); ros.setText((String) v.get("symptoms"));
 		ros.setEditable(false);
 		JScrollPane rosp = new JScrollPane(ros);
 		rosp.setBorder(BorderFactory.createTitledBorder("Review of System:"));
 		visitPanel.add(rosp);
-		JTextArea pe = new JTextArea(); pe.setText((String) v.get("physical"));
+		pe = new JTextArea(); pe.setText((String) v.get("physical"));
 		pe.setEditable(false);
 		JScrollPane pep = new JScrollPane(pe);
 		pep.setBorder(BorderFactory.createTitledBorder("Physical Exam:"));
@@ -62,7 +71,7 @@ public class VisitData extends JFrame {
 
 		JPanel labPanel = new JPanel();
 		ArrayList<DBResult> ltr = DB.getLabsForID(visitid);
-		String tests = "";
+		tests = "";
 		if(ltr.isEmpty() || ltr.size() < 1) tests = "None.  ";
 		for(DBResult lt : ltr) tests += lt.get("test")+", ";
 		tests = tests.substring(0, tests.length()-2);
@@ -71,12 +80,59 @@ public class VisitData extends JFrame {
 
 		JPanel perPanel = new JPanel();
 		ArrayList<DBResult> pr = DB.getPrescriptionsForID(visitid,false);
-		String prescriptions = "";
+		prescriptions = "";
 		if(pr.isEmpty() || pr.size() < 1) prescriptions = "None.  ";
 		for(DBResult r : pr) prescriptions += r.get("pname")+" ("+r.get("abbr")+"), ";
 		prescriptions = prescriptions.substring(0, prescriptions.length()-2);
 		perPanel.add(new JLabel("Prescription(s): "+prescriptions));
 		tab.add(perPanel, "Prescriptions");
 		panel.add(tab);
+
+		JButton btnPrint = new JButton("Print");
+		btnPrint.addActionListener(new PrintListener());
+		tab.add(new JPanel());
+		tab.setTabComponentAt(4, btnPrint);
+	}
+
+		private class PrintListener implements ActionListener{
+			public void actionPerformed(ActionEvent e){
+
+				try{
+					File f = new File("PrintPatientData.txt");
+					PrintWriter writer = new PrintWriter(f, "UTF-8");
+
+					writer.println("Patient Info:");
+					writer.println("Name: "+p.getFullName()+" Doctor: "+p.getDoctorName());
+					writer.println("Visit Date: " + v.get("visit_date"));
+					writer.println("Sex: "+((p.getSex() == 0)?"M":"F")+" Age: "+String.valueOf(p.getAge()+ " Insurance: "+p.getInsuranceName()));
+					writer.println("Height: "+p.getFormattedHeight()+"Weight: "+p.getWeight()+"lbs.");
+					writer.println("Address: " + p.getAddress() + " " + p.getCity()+", "+p.getState()+" "+p.getZipCode());
+					writer.println();
+
+					writer.println("Present Illness: "+v.get("illness"));
+					writer.println("Cheif Complaint: "+v.get("complaint"));
+					writer.println("Impression: "+v.get("impression"));
+					writer.println("Diagnosis: "+v.get("diagnosis"));
+					writer.println("Review of System:\n"+ros.getText());
+					writer.println();
+					writer.println("Physical Exam: \n"+pe.getText());
+					writer.println();
+
+					writer.println("Lab Test(s): "+tests);
+					writer.println();
+					writer.println("Prescription(s): "+prescriptions);
+					writer.close();
+
+					Desktop d = Desktop.getDesktop();
+
+					d.edit(f);
+				}
+				catch(Exception ex)
+				{
+					System.out.println(ex.getMessage());
+				}
+
+
+			}
 	}
 }
